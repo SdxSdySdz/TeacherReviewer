@@ -1,6 +1,6 @@
 /**
  * Teacher Reviewer Platform
- * Central Server API Engine & Interactive Class Management
+ * Central Server API Engine & Interactive Class/Student Management
  */
 
 class TeacherReviewerApp {
@@ -46,7 +46,6 @@ class TeacherReviewerApp {
         }
       } catch (e) {
         console.warn('API /me check failed:', e);
-        // Clear invalid token
         this.token = null;
         this.currentUser = null;
         localStorage.removeItem('tr_token');
@@ -62,7 +61,7 @@ class TeacherReviewerApp {
     }
   }
 
-  // --- CENTRAL API CALL (NO LOCAL STORAGE MOCK FALLBACK) ---
+  // --- CENTRAL API CALL ---
   async apiCall(endpoint, options = {}) {
     options.headers = options.headers || {};
     if (this.token) {
@@ -70,7 +69,6 @@ class TeacherReviewerApp {
     }
     options.headers['Content-Type'] = 'application/json';
 
-    // Route to server domain when on GitHub Pages or local
     const baseUrl = (window.location.hostname === '5-129-242-87.sslip.io') ? '' : 'https://5-129-242-87.sslip.io';
     const resp = await fetch(`${baseUrl}${endpoint}`, options);
     if (resp.ok) {
@@ -187,7 +185,6 @@ class TeacherReviewerApp {
     let actionHTML = "";
 
     if (isNoLessonDay) {
-      // Gray disabled design when no lesson
       actionHTML = `
         <div class="no-lesson-card rounded-3xl p-8 sm:p-12 text-center space-y-6">
           <div class="w-20 h-20 rounded-3xl bg-slate-200 text-slate-500 flex items-center justify-center mx-auto shadow-inner">
@@ -205,7 +202,6 @@ class TeacherReviewerApp {
         </div>
       `;
     } else if (isBeforeLesson) {
-      // Cannot rate before lesson starts
       const lesson = dash.today_lesson;
       actionHTML = `
         <div class="bg-white border-2 border-slate-200/90 rounded-3xl p-7 sm:p-10 space-y-6 shadow-sm">
@@ -227,7 +223,6 @@ class TeacherReviewerApp {
         </div>
       `;
     } else if (isAlreadyRated) {
-      // Cannot change rating
       const r = dash.existing_rating;
       const lesson = dash.today_lesson;
       actionHTML = `
@@ -269,7 +264,6 @@ class TeacherReviewerApp {
         </div>
       `;
     } else {
-      // Ready to rate
       const lesson = dash.today_lesson;
       actionHTML = `
         <div class="bg-white border-2 border-slate-200/90 rounded-3xl p-7 sm:p-10 space-y-6 shadow-sm">
@@ -347,7 +341,7 @@ class TeacherReviewerApp {
 
   switchTeacherTab(tab) {
     this.activeTeacherTab = tab;
-    this.selectedClassDetail = null; // reset class detail when changing tabs
+    this.selectedClassDetail = null;
     ['classes', 'lessons', 'students'].forEach(t => {
       const btn = document.getElementById(`tabBtn-${t}`);
       if (btn) {
@@ -365,13 +359,12 @@ class TeacherReviewerApp {
     const container = document.getElementById('teacherTabContent');
     if (!container) return;
 
-    // 1. If inside a specific Class Detail view:
     if (this.selectedClassDetail) {
       await this.renderClassDetailView(this.selectedClassDetail);
       return;
     }
 
-    // 2. Tab: CLASSES
+    // 1. Tab: CLASSES
     if (this.activeTeacherTab === 'classes') {
       try {
         const classes = await this.apiCall('/api/teacher/classes');
@@ -394,16 +387,23 @@ class TeacherReviewerApp {
 
         container.innerHTML = `
           <div class="space-y-4">
-            <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Нажмите на класс, чтобы открыть список учеников</p>
+            <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Нажмите на класс для просмотра учеников</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               ${classes.map(c => `
                 <div class="bg-white hover:bg-slate-50/80 active:scale-[0.99] border-2 border-slate-200/90 rounded-3xl p-6 transition shadow-xs flex flex-col justify-between space-y-4 group">
                   <div class="cursor-pointer" onclick="app.openClassDetail(${c.id}, '${encodeURIComponent(c.name)}')">
                     <div class="flex justify-between items-start gap-2">
                       <h4 class="font-black text-2xl text-slate-900 group-hover:text-indigo-600 transition">${c.name}</h4>
-                      <span class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition">
-                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                      </span>
+                      <div class="flex items-center gap-1.5">
+                        <button onclick="event.stopPropagation(); app.deleteClass(${c.id}, '${encodeURIComponent(c.name)}')"
+                                title="Удалить класс"
+                                class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-400 flex items-center justify-center transition">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                        <span class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition">
+                          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </span>
+                      </div>
                     </div>
                     <p class="text-sm text-slate-500 font-medium mt-1">${c.description || 'Без описания'}</p>
                   </div>
@@ -435,7 +435,7 @@ class TeacherReviewerApp {
       }
     }
 
-    // 3. Tab: LESSONS
+    // 2. Tab: LESSONS
     else if (this.activeTeacherTab === 'lessons') {
       try {
         const lessons = await this.apiCall('/api/teacher/lessons');
@@ -471,7 +471,7 @@ class TeacherReviewerApp {
       }
     }
 
-    // 4. Tab: ALL STUDENTS
+    // 3. Tab: ALL STUDENTS
     else if (this.activeTeacherTab === 'students') {
       try {
         const students = await this.apiCall('/api/teacher/students');
@@ -482,14 +482,24 @@ class TeacherReviewerApp {
         container.innerHTML = `
           <div class="space-y-3">
             ${students.map(s => `
-              <div class="bg-white p-5 rounded-3xl border-2 border-slate-200/90 shadow-xs flex justify-between items-center">
+              <div class="bg-white p-5 rounded-3xl border-2 border-slate-200/90 shadow-xs flex justify-between items-center gap-3">
                 <div>
                   <h4 class="font-black text-lg sm:text-xl text-slate-900">${s.name}</h4>
                   <span class="text-sm font-semibold text-slate-500">${s.class_name}</span>
+                  <span class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-lg ml-2">${s.username}</span>
                 </div>
-                <div class="text-right">
-                  <span class="text-xs font-bold text-slate-400 block mb-0.5">Логин</span>
-                  <span class="font-mono text-sm sm:text-base font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">${s.username}</span>
+                <div class="flex items-center gap-2">
+                  <button onclick="app.openEditStudentModal(${s.id}, '${encodeURIComponent(s.name)}', '${encodeURIComponent(s.username)}', ${s.class_id})"
+                          title="Редактировать ученика"
+                          class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-bold transition flex items-center gap-1.5">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>Изменить</span>
+                  </button>
+                  <button onclick="app.deleteStudent(${s.id}, '${encodeURIComponent(s.name)}')"
+                          title="Удалить ученика"
+                          class="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
                 </div>
               </div>
             `).join('')}
@@ -503,7 +513,7 @@ class TeacherReviewerApp {
     if (window.lucide) lucide.createIcons();
   }
 
-  // --- CLASS DETAIL VIEW (CLICKING A CLASS OPENS ITS STUDENTS) ---
+  // --- CLASS DETAIL VIEW ---
   async openClassDetail(classId, encodedName) {
     const className = decodeURIComponent(encodedName);
     this.selectedClassDetail = { id: classId, name: className };
@@ -520,21 +530,26 @@ class TeacherReviewerApp {
     if (!container) return;
 
     try {
-      // Fetch students for this class
       const students = await this.apiCall(`/api/teacher/students?class_id=${cls.id}`);
 
       container.innerHTML = `
         <div class="space-y-6">
-          <!-- Back button & Class header -->
-          <div class="flex items-center justify-between">
+          <!-- Back button & Actions -->
+          <div class="flex items-center justify-between gap-2">
             <button onclick="app.backToClasses()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center gap-2 transition">
               <i data-lucide="arrow-left" class="w-4 h-4"></i>
               <span>Все классы</span>
             </button>
-            <button onclick="app.openModal('createStudentModal', ${cls.id})" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm flex items-center gap-2 shadow-sm">
-              <i data-lucide="user-plus" class="w-4 h-4"></i>
-              <span>+ Добавить ученика</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="app.openModal('createStudentModal', ${cls.id})" class="px-4 py-2 rounded-xl bg-indigo-600 active:bg-indigo-700 text-white font-bold text-sm flex items-center gap-2 shadow-sm">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <span>+ Добавить ученика</span>
+              </button>
+              <button onclick="app.deleteClass(${cls.id}, '${encodeURIComponent(cls.name)}')" title="Удалить класс" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm flex items-center gap-1.5 transition">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Удалить класс</span>
+              </button>
+            </div>
           </div>
 
           <div class="bg-indigo-50/70 border-2 border-indigo-100 rounded-3xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -543,12 +558,12 @@ class TeacherReviewerApp {
               <h2 class="text-3xl font-black text-slate-900">${cls.name}</h2>
             </div>
             <div class="bg-white px-4 py-2.5 rounded-2xl border border-indigo-100 shadow-xs self-start sm:self-auto">
-              <span class="text-xs text-slate-400 font-bold block">Всего учеников</span>
+              <span class="text-xs text-slate-400 font-bold block">Учеников в классе</span>
               <span class="text-2xl font-black text-indigo-700">${students.length}</span>
             </div>
           </div>
 
-          <!-- Students List in this Class -->
+          <!-- Students List -->
           <div>
             <h3 class="text-lg font-black text-slate-900 mb-3">Список учеников класса</h3>
             ${students.length === 0 ? `
@@ -562,14 +577,27 @@ class TeacherReviewerApp {
             ` : `
               <div class="space-y-3">
                 ${students.map(s => `
-                  <div class="bg-white border-2 border-slate-200/90 rounded-2xl p-4 sm:p-5 flex justify-between items-center shadow-xs">
+                  <div class="bg-white border-2 border-slate-200/90 rounded-2xl p-4 sm:p-5 flex justify-between items-center gap-3 shadow-xs">
                     <div>
                       <h4 class="font-black text-lg text-slate-900">${s.name}</h4>
-                      <p class="text-xs text-slate-400 mt-0.5">Оценок выставлено: <strong>${s.ratings_count || 0}</strong></p>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-slate-400">Логин:</span>
+                        <span class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${s.username}</span>
+                        <span class="text-xs text-slate-400 ml-2">Оценок: <strong>${s.ratings_count || 0}</strong></span>
+                      </div>
                     </div>
-                    <div class="text-right">
-                      <span class="text-xs text-slate-400 block mb-0.5">Логин</span>
-                      <span class="font-mono text-sm font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">${s.username}</span>
+                    <div class="flex items-center gap-2">
+                      <button onclick="app.openEditStudentModal(${s.id}, '${encodeURIComponent(s.name)}', '${encodeURIComponent(s.username)}', ${s.class_id})"
+                              title="Редактировать"
+                              class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-bold transition flex items-center gap-1">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Изменить</span>
+                      </button>
+                      <button onclick="app.deleteStudent(${s.id}, '${encodeURIComponent(s.name)}')"
+                              title="Удалить"
+                              class="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
                     </div>
                   </div>
                 `).join('')}
@@ -583,6 +611,97 @@ class TeacherReviewerApp {
     }
 
     if (window.lucide) lucide.createIcons();
+  }
+
+  // --- DELETE CLASS ---
+  async deleteClass(classId, encodedName) {
+    const className = decodeURIComponent(encodedName);
+    const ok = confirm(`Вы действительно хотите удалить класс «${className}»?\nВсе ученики этого класса и их оценки будут безвозвратно удалены.`);
+    if (!ok) return;
+
+    try {
+      await this.apiCall(`/api/teacher/classes/${classId}`, { method: 'DELETE' });
+      this.showToast(`Класс «${className}» удалён`, "success");
+      if (this.selectedClassDetail?.id === classId) {
+        this.selectedClassDetail = null;
+      }
+      await this.renderTeacherContent();
+    } catch (err) {
+      this.showToast(err.message || "Ошибка удаления класса", "error");
+    }
+  }
+
+  // --- DELETE STUDENT ---
+  async deleteStudent(studentId, encodedName) {
+    const studentName = decodeURIComponent(encodedName);
+    const ok = confirm(`Удалить ученика ${studentName}?`);
+    if (!ok) return;
+
+    try {
+      await this.apiCall(`/api/teacher/students/${studentId}`, { method: 'DELETE' });
+      this.showToast(`Ученик ${studentName} удалён`, "success");
+      await this.renderTeacherContent();
+    } catch (err) {
+      this.showToast(err.message || "Ошибка удаления ученика", "error");
+    }
+  }
+
+  // --- EDIT STUDENT ---
+  async openEditStudentModal(studentId, encodedName, encodedUsername, classId) {
+    const name = decodeURIComponent(encodedName);
+    const username = decodeURIComponent(encodedUsername);
+
+    document.getElementById('editStudentId').value = studentId;
+    document.getElementById('editStudentName').value = name;
+    document.getElementById('editStudentUsername').value = username;
+    document.getElementById('editStudentPassword').value = '';
+
+    const select = document.getElementById('editStudentClassId');
+    if (select) {
+      select.innerHTML = '<option value="" disabled selected>Загрузка...</option>';
+      try {
+        const classes = await this.apiCall('/api/teacher/classes');
+        select.innerHTML = classes.map(c => `
+          <option value="${c.id}" ${c.id === Number(classId) ? 'selected' : ''}>${c.name}</option>
+        `).join('');
+      } catch (e) {
+        select.innerHTML = '<option value="" disabled selected>Ошибка загрузки классов</option>';
+      }
+    }
+
+    const modal = document.getElementById('editStudentModal');
+    if (modal) modal.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  async handleUpdateStudent(e) {
+    e.preventDefault();
+    const studentId = parseInt(document.getElementById('editStudentId').value);
+    const classId = parseInt(document.getElementById('editStudentClassId').value);
+    const name = document.getElementById('editStudentName').value.trim();
+    const username = document.getElementById('editStudentUsername').value.trim();
+    const password = document.getElementById('editStudentPassword').value.trim();
+
+    const payload = {
+      name,
+      username,
+      class_id: classId
+    };
+    if (password) {
+      payload.password = password;
+    }
+
+    try {
+      await this.apiCall(`/api/teacher/students/${studentId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      this.closeModal('editStudentModal');
+      this.showToast("Данные ученика успешно обновлены!", "success");
+      await this.renderTeacherContent();
+    } catch (err) {
+      this.showToast(err.message || "Ошибка обновления ученика", "error");
+    }
   }
 
   // --- RATING MODAL ---
@@ -754,9 +873,8 @@ class TeacherReviewerApp {
     this.fetchAndRenderCalendarRatings();
   }
 
-  // --- ASYNC MODAL OPENER WITH SERVER DATA POPULATION ---
+  // --- ASYNC MODAL OPENER ---
   async openModal(id, preselectedClassId = null) {
-    // If opening student or lesson modal, populate real classes from the server!
     if (id === 'createStudentModal' || id === 'createLessonModal') {
       const selectId = id === 'createStudentModal' ? 'newStudentClassId' : 'newLessonClassId';
       const select = document.getElementById(selectId);
@@ -845,8 +963,6 @@ class TeacherReviewerApp {
       document.getElementById('newStudentName').value = '';
       document.getElementById('newStudentUsername').value = '';
       this.showToast(`Ученик ${name} успешно добавлен!`, "success");
-
-      // Refresh current view (class detail or classes tab)
       await this.renderTeacherContent();
     } catch (err) {
       this.showToast(err.message, "error");
