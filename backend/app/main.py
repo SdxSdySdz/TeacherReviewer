@@ -99,17 +99,7 @@ def get_me(user: dict = Depends(get_current_user)):
 
 @app.get("/api/auth/demo-accounts")
 def get_demo_accounts():
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT u.id, u.username, u.password, u.name, u.role, u.class_id, c.name as class_name
-        FROM users u
-        LEFT JOIN classes c ON u.class_id = c.id
-        ORDER BY u.role DESC, u.id ASC
-    """)
-    rows = cursor.fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    return []
 
 # --- TEACHER ENDPOINTS ---
 
