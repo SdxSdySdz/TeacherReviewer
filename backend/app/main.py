@@ -101,6 +101,15 @@ def get_me(user: dict = Depends(get_current_user)):
 def get_demo_accounts():
     return []
 
+@app.get("/api/classes")
+def get_public_classes(user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name, description FROM classes ORDER BY name ASC")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
 # --- TEACHER ENDPOINTS ---
 
 @app.get("/api/teacher/classes", response_model=List[ClassResponse])
@@ -147,10 +156,10 @@ def create_class(data: ClassCreate, user: dict = Depends(require_teacher)):
     }
 
 @app.get("/api/teacher/students", response_model=List[StudentResponse])
-def get_students(user: dict = Depends(require_teacher)):
+def get_students(class_id: Optional[int] = None, user: dict = Depends(require_teacher)):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("""
+    query = """
         SELECT 
             u.id, u.username, u.name, u.role, u.class_id, c.name as class_name, u.created_at,
             COUNT(r.id) as ratings_count
@@ -158,9 +167,13 @@ def get_students(user: dict = Depends(require_teacher)):
         JOIN classes c ON u.class_id = c.id
         LEFT JOIN ratings r ON r.student_id = u.id
         WHERE u.role = 'student'
-        GROUP BY u.id
-        ORDER BY c.name ASC, u.name ASC
-    """)
+    """
+    params = []
+    if class_id is not None:
+        query += " AND u.class_id = ?"
+        params.append(class_id)
+    query += " GROUP BY u.id ORDER BY c.name ASC, u.name ASC"
+    cursor.execute(query, params)
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
