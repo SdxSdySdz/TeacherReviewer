@@ -1,119 +1,42 @@
-/* Custom Design Styles for Teacher Reviewer */
+/* Minimalist Clean Styles */
 
-/* Custom Range Input (Slider) Styling */
+/* Clean Slider Styling */
 input[type=range] {
   -webkit-appearance: none;
   background: #e2e8f0;
   border-radius: 9999px;
-  height: 8px;
+  height: 6px;
   outline: none;
-  transition: all 0.2s ease;
 }
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid #4f46e5;
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3), 0 2px 4px -2px rgba(79, 70, 229, 0.2);
+  border: 2px solid #4f46e5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.1s ease;
 }
 
 input[type=range]::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  box-shadow: 0 6px 12px -2px rgba(79, 70, 229, 0.4);
 }
 
-input[type=range]::-webkit-slider-thumb:active {
-  transform: scale(0.95);
-}
-
-#sliderEngagement::-webkit-slider-thumb {
-  border-color: #059669;
-}
-#sliderEngagement::-webkit-slider-thumb:hover {
-  box-shadow: 0 6px 12px -2px rgba(5, 150, 105, 0.4);
-}
-
-#sliderAtmosphere::-webkit-slider-thumb {
-  border-color: #7c3aed;
-}
-#sliderAtmosphere::-webkit-slider-thumb:hover {
-  box-shadow: 0 6px 12px -2px rgba(124, 58, 237, 0.4);
-}
-
-/* ---------------------------------------------------- */
-/* GRAY DISABLED DESIGN (в день когда урока нет)         */
-/* "в день когда урока нет должен быть серый недоступный дизайн" */
-/* ---------------------------------------------------- */
+/* Gray Disabled Design for days with no lesson */
 .theme-no-lesson {
-  background-color: #e5e7eb !important; /* Neutral gray-200 background */
-}
-
-.theme-no-lesson #mainContainer {
-  filter: grayscale(70%);
-  transition: filter 0.4s ease;
+  background-color: #f1f5f9 !important;
 }
 
 .no-lesson-card {
-  background: #f3f4f6 !important;
-  border: 2px dashed #9ca3af !important;
-  color: #4b5563 !important;
-  box-shadow: none !important;
-}
-
-.no-lesson-card .badge-gray {
-  background-color: #d1d5db !important;
-  color: #374151 !important;
-  border-color: #9ca3af !important;
+  background: #ffffff !important;
+  border: 1px dashed #cbd5e1 !important;
 }
 
 .no-lesson-disabled-btn {
-  background: #9ca3af !important;
-  color: #f3f4f6 !important;
+  background: #cbd5e1 !important;
+  color: #64748b !important;
   cursor: not-allowed !important;
-  box-shadow: none !important;
-  opacity: 0.8 !important;
-  pointer-events: none !important;
-}
-
-/* Modal Transitions */
-.modal-open {
-  opacity: 1 !important;
-  transform: scale(1) !important;
-}
-
-/* Toast styling */
-.toast {
-  pointer-events: auto;
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Pulse animation for active lesson */
-@keyframes pulseSubtle {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(79, 70, 229, 0);
-  }
-}
-
-.pulse-active {
-  animation: pulseSubtle 2s infinite;
 }
