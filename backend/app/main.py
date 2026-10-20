@@ -505,6 +505,123 @@ def submit_rating(data: RatingCreate, user: dict = Depends(require_student)):
         "created_at": now_str
     }
 
+@app.delete("/api/teacher/classes/{class_id}")
+def delete_class(class_id: int, user: dict = Depends(require_teacher)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM classes WHERE id = ?", (class_id,))
+    target = cursor.fetchone()
+    if not target:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Класс не найден")
+
+    # Cascade delete ratings for lessons of this class
+    cursor.execute("DELETE FROM ratings WHERE lesson_id IN (SELECT id FROM lessons WHERE class_id = ?)", (class_id,))
+    cursor.execute("DELETE FROM lessons WHERE class_id = ?", (class_id,))
+    cursor.execute("DELETE FROM ratings WHERE student_id IN (SELECT id FROM users WHERE class_id = ?)", (class_id,))
+    cursor.execute("DELETE FROM users WHERE class_id = ? AND role = 'student'", (class_id,))
+    cursor.execute("DELETE FROM classes WHERE id = ?", (class_id,))
+    conn.commit()
+    conn.close()
+    return {"message": f"Класс «{target['name']}» успешно удалён"}
+
+@app.put("/api/teacher/classes/{class_id}", response_model=ClassResponse)
+def update_class(class_id: int, data: ClassUpdate, user: dict = Depends(require_teacher)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, created_at FROM classes WHERE id = ?", (class_id,))
+    target = cursor.fetchone()
+    if not target:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Класс не найден")
+
+    cursor.execute(
+        "UPDATE classes SET name = ?, description = ? WHERE id = ?",
+        (data.name.strip(), data.description.strip(), class_id)
+    )
+    conn.commit()
+
+    cursor.execute("""
+        SELECT 
+            c.id, c.name, c.description, c.created_at,
+            COUNT(DISTINCT u.id) as student_count,
+            COUNT(DISTINCT l.id) as lesson_count,
+            ROUND(AVG((r.score_clarity + r.score_engagement + r.score_atmosphere) / 3.0), 2) as average_rating
+        FROM classes c
+        LEFT JOIN users u ON u.class_id = c.id AND u.role = 'student'
+        LEFT JOIN lessons l ON l.class_id = c.id
+        LEFT JOIN ratings r ON r.lesson_id = l.id
+        WHERE c.id = ?
+        GROUP BY c.id
+    """, (class_id,))
+    updated = cursor.fetchone()
+    conn.close()
+    return dict(updated)
+
+@app.delete("/api/teacher/students/{student_id}")
+def delete_student(student_id: int, user: dict = Depends(require_teacher)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM users WHERE id = ? AND role = 'student'", (student_id,))
+    target = cursor.fetchone()
+    if not target:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Ученик не найден")
+
+    cursor.execute("DELETE FROM ratings WHERE student_id = ?", (student_id,))
+    cursor.execute("DELETE FROM users WHERE id = ?", (student_id,))
+    conn.commit()
+    conn.close()
+    return {"message": f"Ученик {target['name']} успешно удалён"}
+
+@app.put("/api/teacher/students/{student_id}", response_model=StudentResponse)
+def update_student(student_id: int, data: StudentUpdate, user: dict = Depends(require_teacher)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name, role, class_id FROM users WHERE id = ? AND role = 'student'", (student_id,))
+    target = cursor.fetchone()
+    if not target:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Ученик не найден")
+
+    cursor.execute("SELECT id, name FROM classes WHERE id = ?", (data.class_id,))
+    target_class = cursor.fetchone()
+    if not target_class:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Указанный класс не существует")
+
+    cursor.execute("SELECT id FROM users WHERE username = ? AND id != ?", (data.username.strip(), student_id))
+    if cursor.fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Логин уже занят другим пользователем")
+
+    if data.password and data.password.strip():
+        cursor.execute(
+            "UPDATE users SET name = ?, username = ?, password = ?, class_id = ? WHERE id = ?",
+            (data.name.strip(), data.username.strip(), data.password.strip(), data.class_id, student_id)
+        )
+    else:
+        cursor.execute(
+            "UPDATE users SET name = ?, username = ?, class_id = ? WHERE id = ?",
+            (data.name.strip(), data.username.strip(), data.class_id, student_id)
+        )
+
+    conn.commit()
+
+    cursor.execute("""
+        SELECT 
+            u.id, u.username, u.name, u.role, u.class_id, c.name as class_name, u.created_at,
+            COUNT(r.id) as ratings_count
+        FROM users u
+        JOIN classes c ON u.class_id = c.id
+        LEFT JOIN ratings r ON r.student_id = u.id
+        WHERE u.id = ?
+        GROUP BY u.id
+    """, (student_id,))
+    updated_student = cursor.fetchone()
+    conn.close()
+    return dict(updated_student)
+
 # --- CALENDAR & RATINGS TABLE ENDPOINT ---
 # "на главной странице есть иконка календаря где можно увидеть таблицу с остальными учениками и оценки других учеников. в разные дни"
 
