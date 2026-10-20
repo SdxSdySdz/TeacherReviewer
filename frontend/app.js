@@ -97,16 +97,13 @@ class TeacherReviewerApp {
     }
     options.headers['Content-Type'] = 'application/json';
 
-    try {
-      const resp = await fetch(endpoint, options);
-      if (resp.ok) {
-        return await resp.json();
-      }
-      const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.detail || `Ошибка: ${resp.status}`);
-    } catch (e) {
-      return this.handleLocalRequest(endpoint, options);
+    const baseUrl = (window.location.hostname === '5-129-242-87.sslip.io') ? '' : 'https://5-129-242-87.sslip.io';
+    const resp = await fetch(`${baseUrl}${endpoint}`, options);
+    if (resp.ok) {
+      return await resp.json();
     }
+    const errData = await resp.json().catch(() => ({}));
+    throw new Error(errData.detail || `Ошибка: ${resp.status}`);
   }
 
   handleLocalRequest(endpoint, options) {
