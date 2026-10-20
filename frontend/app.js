@@ -1,6 +1,6 @@
 /**
  * Teacher Reviewer Platform
- * Clean, Minimalist Engine
+ * Clean, Mobile-First, Large-Format UI
  */
 
 class TeacherReviewerApp {
@@ -16,8 +16,8 @@ class TeacherReviewerApp {
     this.calendarDateFilter = 'all';
     this.calendarClassFilter = '';
 
-    // Clear legacy test data from localStorage
-    if (localStorage.getItem('tr_v2_cleaned') !== 'true') {
+    // Clear legacy test data if any
+    if (localStorage.getItem('tr_v3_cleaned') !== 'true') {
       localStorage.removeItem('tr_classes');
       localStorage.removeItem('tr_lessons');
       localStorage.removeItem('tr_ratings');
@@ -26,7 +26,7 @@ class TeacherReviewerApp {
       localStorage.removeItem('tr_token');
       this.currentUser = null;
       this.token = null;
-      localStorage.setItem('tr_v2_cleaned', 'true');
+      localStorage.setItem('tr_v3_cleaned', 'true');
     }
 
     this.initStandaloneStore();
@@ -46,7 +46,7 @@ class TeacherReviewerApp {
   }
 
   initStandaloneStore() {
-    // Clean initial state: only teacher maxim 314159, no fake students, classes, or lessons
+    // Only teacher maxim / 314159, no mock data
     if (!localStorage.getItem('tr_classes')) {
       localStorage.setItem('tr_classes', JSON.stringify([]));
     }
@@ -64,12 +64,6 @@ class TeacherReviewerApp {
   }
 
   async init() {
-    const todayFormatted = this.formatDateRussian(new Date());
-    const headerToday = document.getElementById('headerTodayText');
-    if (headerToday) {
-      headerToday.textContent = `Сегодня: ${todayFormatted}`;
-    }
-
     const dateInput = document.getElementById('newLessonDate');
     if (dateInput) {
       dateInput.value = this.todayStr;
@@ -187,23 +181,6 @@ class TeacherReviewerApp {
         }
       }
 
-      const recentLessons = lessons
-        .filter(l => l.class_id === classId && l.date <= this.todayStr)
-        .map(l => {
-          const r = ratings.find(rt => rt.lesson_id === l.id && rt.student_id === this.currentUser.id);
-          return {
-            id: l.id,
-            title: l.title,
-            date: l.date,
-            start_time: l.start_time,
-            end_time: l.end_time,
-            score_clarity: r ? r.score_clarity : null,
-            score_engagement: r ? r.score_engagement : null,
-            score_atmosphere: r ? r.score_atmosphere : null,
-            rated_at: r ? r.created_at : null
-          };
-        });
-
       return {
         today_date: this.todayStr,
         today_formatted: this.formatDateRussian(new Date()),
@@ -214,8 +191,7 @@ class TeacherReviewerApp {
         status: status,
         can_rate: canRate,
         rate_reason: rateReason,
-        existing_rating: existingRating,
-        recent_lessons: recentLessons
+        existing_rating: existingRating
       };
     }
 
@@ -427,13 +403,17 @@ class TeacherReviewerApp {
 
     if (this.currentUser) {
       const isTeacher = this.currentUser.role === 'teacher';
-      const label = isTeacher ? 'Учитель' : `${this.currentUser.name} (${this.currentUser.class_name || 'Ученик'})`;
+      const label = isTeacher ? 'Учитель' : this.currentUser.name;
 
       container.innerHTML = `
-        <div class="flex items-center gap-2 text-xs">
-          <span class="font-medium text-slate-700">${label}</span>
-          <button onclick="app.logout()" title="Выйти" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition">
-            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <div class="bg-slate-100 px-2.5 sm:px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-800">
+            <i data-lucide="${isTeacher ? 'award' : 'user'}" class="w-4 h-4 text-indigo-600"></i>
+            <span class="max-w-[120px] sm:max-w-none truncate">${label}</span>
+          </div>
+          <button onclick="app.logout()" title="Выйти"
+                  class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 active:scale-95 text-slate-500 flex items-center justify-center transition">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
           </button>
         </div>
       `;
@@ -465,26 +445,29 @@ class TeacherReviewerApp {
   // --- LOGIN VIEW ---
   getLoginViewHTML() {
     return `
-      <div class="max-w-sm mx-auto my-12 bg-white rounded-2xl border border-slate-200 p-6 space-y-5 shadow-sm">
-        <div class="text-center space-y-1">
-          <h2 class="text-xl font-bold text-slate-900">Вход в систему</h2>
-          <p class="text-xs text-slate-400">Введите логин и пароль</p>
+      <div class="max-w-md mx-auto my-6 sm:my-14 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-6 shadow-sm">
+        <div class="text-center space-y-2">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-2">
+            <i data-lucide="user-check" class="w-7 h-7"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Вход в систему</h2>
+          <p class="text-sm text-slate-500">Войдите как учитель или ученик</p>
         </div>
 
-        <form onsubmit="app.handleLoginFormSubmit(event)" class="space-y-3.5">
+        <form onsubmit="app.handleLoginFormSubmit(event)" class="space-y-4">
           <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Логин</label>
-            <input type="text" id="loginUsername" required placeholder="Логин"
-                   class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:border-indigo-500 outline-none">
+            <label class="block text-sm font-bold text-slate-700 mb-1.5">Логин</label>
+            <input type="text" id="loginUsername" required placeholder="Введите логин"
+                   class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-base focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none transition">
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Пароль</label>
-            <input type="password" id="loginPassword" required placeholder="Пароль"
-                   class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:border-indigo-500 outline-none">
+            <label class="block text-sm font-bold text-slate-700 mb-1.5">Пароль</label>
+            <input type="password" id="loginPassword" required placeholder="Введите пароль"
+                   class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-base focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none transition">
           </div>
 
-          <button type="submit" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition">
+          <button type="submit" class="w-full py-4 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-bold text-base shadow-md shadow-indigo-600/20 active:scale-[0.99] transition mt-2">
             Войти
           </button>
         </form>
@@ -492,7 +475,7 @@ class TeacherReviewerApp {
     `;
   }
 
-  // --- STUDENT VIEW ---
+  // --- STUDENT VIEW (MOBILE FIRST & LARGE DATE) ---
   async getStudentViewHTML() {
     let dash;
     try {
@@ -519,36 +502,42 @@ class TeacherReviewerApp {
     let actionHTML = "";
 
     if (isNoLessonDay) {
-      // Gray disabled design when no lesson
+      // Gray disabled design on days without a lesson
       actionHTML = `
-        <div class="no-lesson-card rounded-2xl p-8 text-center space-y-3">
-          <div class="w-12 h-12 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center mx-auto">
-            <i data-lucide="calendar-off" class="w-6 h-6"></i>
+        <div class="no-lesson-card rounded-3xl p-6 sm:p-10 text-center space-y-4">
+          <div class="w-16 h-16 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center mx-auto shadow-inner">
+            <i data-lucide="calendar-off" class="w-8 h-8"></i>
           </div>
-          <div>
-            <h3 class="font-bold text-slate-700 text-base">Сегодня занятий нет</h3>
-            <p class="text-xs text-slate-500 mt-1">Оценивание недоступно</p>
+          <div class="space-y-1">
+            <h3 class="font-extrabold text-slate-700 text-xl sm:text-2xl">Сегодня занятий нет</h3>
+            <p class="text-sm sm:text-base text-slate-500">В этот день оценивание недоступно</p>
           </div>
-          <button disabled class="no-lesson-disabled-btn px-6 py-2.5 rounded-xl text-xs font-semibold">
-            Оценить урок (Недоступно)
-          </button>
+          <div class="pt-2">
+            <button disabled class="no-lesson-disabled-btn w-full py-4 px-6 rounded-2xl text-base font-bold shadow-none">
+              Оценить урок (Нет занятий)
+            </button>
+          </div>
         </div>
       `;
     } else if (isBeforeLesson) {
       // Cannot rate before lesson starts
       const lesson = dash.today_lesson;
       actionHTML = `
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-          <div class="space-y-1">
-            <span class="text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Начало в ${lesson.start_time}</span>
-            <h3 class="text-lg font-bold text-slate-900">${lesson.title}</h3>
-            <p class="text-xs text-slate-500">${lesson.start_time} - ${lesson.end_time}</p>
+        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
+          <div class="space-y-2">
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+              Начало в ${lesson.start_time}
+            </span>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">${lesson.title}</h3>
+            <p class="text-sm sm:text-base text-slate-500 font-medium">Время урока: ${lesson.start_time} – ${lesson.end_time}</p>
           </div>
-          <div>
-            <button disabled class="px-5 py-2.5 rounded-xl bg-slate-200 text-slate-400 font-semibold text-xs cursor-not-allowed">
+
+          <div class="pt-2 space-y-2">
+            <button disabled class="w-full py-4 rounded-2xl bg-slate-200 text-slate-500 font-bold text-base cursor-not-allowed">
               Оценить урок (Доступно с ${lesson.start_time})
             </button>
-            <p class="text-[11px] text-slate-400 mt-1.5">Нельзя ставить оценки до занятия</p>
+            <p class="text-xs text-center text-slate-400 font-medium">Оценку нельзя поставить до начала занятия</p>
           </div>
         </div>
       `;
@@ -557,63 +546,75 @@ class TeacherReviewerApp {
       const r = dash.existing_rating;
       const lesson = dash.today_lesson;
       actionHTML = `
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+          <div class="flex items-start justify-between border-b border-slate-100 pb-4">
             <div>
-              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Урок оценен</span>
-              <h3 class="text-base font-bold text-slate-900 mt-1">${lesson.title}</h3>
-            </div>
-            <span class="text-xs text-slate-400">Оценка зафиксирована</span>
-          </div>
-
-          <div class="grid grid-cols-4 gap-2 text-center">
-            <div class="bg-slate-50 p-2.5 rounded-xl">
-              <span class="text-[10px] text-slate-400 block">Понятность</span>
-              <span class="font-bold text-sm text-slate-800">${r.score_clarity} / 10</span>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-xl">
-              <span class="text-[10px] text-slate-400 block">Интерес</span>
-              <span class="font-bold text-sm text-slate-800">${r.score_engagement} / 10</span>
-            </div>
-            <div class="bg-slate-50 p-2.5 rounded-xl">
-              <span class="text-[10px] text-slate-400 block">Атмосфера</span>
-              <span class="font-bold text-sm text-slate-800">${r.score_atmosphere} / 10</span>
-            </div>
-            <div class="bg-slate-900 text-white p-2.5 rounded-xl">
-              <span class="text-[10px] text-slate-300 block">Итог</span>
-              <span class="font-bold text-sm text-amber-300">${r.average_score} / 10</span>
+              <span class="inline-flex items-center gap-1 text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full mb-1.5">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                Урок оценен
+              </span>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">${lesson.title}</h3>
             </div>
           </div>
 
-          <button disabled class="w-full py-2 rounded-xl bg-slate-100 text-slate-400 font-medium text-xs cursor-not-allowed">
-            Оценка сохранена (менять оценку нельзя)
-          </button>
+          <!-- Score cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
+              <span class="text-xs text-slate-500 font-medium block">Понятность</span>
+              <span class="font-extrabold text-lg text-slate-900 mt-0.5 block">${r.score_clarity} / 10</span>
+            </div>
+            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
+              <span class="text-xs text-slate-500 font-medium block">Интерес</span>
+              <span class="font-extrabold text-lg text-slate-900 mt-0.5 block">${r.score_engagement} / 10</span>
+            </div>
+            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
+              <span class="text-xs text-slate-500 font-medium block">Атмосфера</span>
+              <span class="font-extrabold text-lg text-slate-900 mt-0.5 block">${r.score_atmosphere} / 10</span>
+            </div>
+            <div class="bg-indigo-600 text-white p-3.5 rounded-2xl shadow-sm">
+              <span class="text-xs text-indigo-100 font-medium block">Итог</span>
+              <span class="font-black text-xl text-amber-300 mt-0.5 block">${r.average_score} / 10</span>
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <button disabled class="w-full py-3.5 rounded-2xl bg-slate-100 text-slate-400 font-semibold text-sm cursor-not-allowed">
+              Оценка сохранена (изменение невозможно)
+            </button>
+          </div>
         </div>
       `;
     } else {
-      // Ready to rate
+      // Ready to rate: big prominent button!
       const lesson = dash.today_lesson;
       actionHTML = `
-        <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-          <div class="space-y-1">
-            <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Занятие завершено</span>
-            <h3 class="text-lg font-bold text-slate-900">${lesson.title}</h3>
-            <p class="text-xs text-slate-500">${lesson.start_time} - ${lesson.end_time}</p>
+        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
+          <div class="space-y-2">
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1 rounded-full">
+              <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-indigo-600"></i>
+              Занятие готово к оценке
+            </span>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">${lesson.title}</h3>
+            <p class="text-sm sm:text-base text-slate-500 font-medium">${lesson.start_time} – ${lesson.end_time}</p>
           </div>
-          <button onclick="app.openRatingModal(${lesson.id}, '${encodeURIComponent(lesson.title)}', '${lesson.date}', '${lesson.start_time} - ${lesson.end_time}')"
-                  class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition">
-            Оценить урок
-          </button>
+
+          <div class="pt-2">
+            <button onclick="app.openRatingModal(${lesson.id}, '${encodeURIComponent(lesson.title)}', '${lesson.date}', '${lesson.start_time} – ${lesson.end_time}')"
+                    class="w-full py-4 px-6 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-extrabold text-base sm:text-lg shadow-lg shadow-indigo-600/25 active:scale-[0.99] transition flex items-center justify-center gap-2">
+              <i data-lucide="star" class="w-5 h-5"></i>
+              <span>Оценить урок</span>
+            </button>
+          </div>
         </div>
       `;
     }
 
     return `
-      <div class="max-w-lg mx-auto space-y-5">
-        <!-- Date Header -->
-        <div class="text-center space-y-1">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Сегодняшняя дата</span>
-          <h1 class="text-2xl font-bold text-slate-900">${todayFormatted}</h1>
+      <div class="space-y-6">
+        <!-- Prominent Date Header -->
+        <div class="text-center space-y-1 py-1">
+          <span class="text-xs sm:text-sm font-bold text-indigo-600 uppercase tracking-widest block">Сегодня</span>
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">${todayFormatted}</h1>
         </div>
 
         ${actionHTML}
@@ -625,33 +626,33 @@ class TeacherReviewerApp {
   async getTeacherViewHTML() {
     return `
       <div class="space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div>
-            <h1 class="text-xl font-bold text-slate-900">Кабинет учителя</h1>
-            <p class="text-xs text-slate-500">Управление классами, учениками и занятиями</p>
+            <h1 class="text-2xl font-extrabold text-slate-900">Кабинет учителя</h1>
+            <p class="text-sm text-slate-500">Управление классами, учениками и занятиями</p>
           </div>
-          <div class="flex gap-2">
-            <button onclick="app.openModal('createLessonModal')" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">
+          <div class="flex items-center gap-2">
+            <button onclick="app.openModal('createLessonModal')" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-indigo-600 active:bg-indigo-700 text-white text-sm font-bold shadow-sm">
               + Урок
             </button>
-            <button onclick="app.openModal('createStudentModal')" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold">
+            <button onclick="app.openModal('createStudentModal')" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-800 text-sm font-bold">
               + Ученик
             </button>
-            <button onclick="app.openModal('createClassModal')" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold">
+            <button onclick="app.openModal('createClassModal')" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-800 text-sm font-bold">
               + Класс
             </button>
           </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="flex gap-2 border-b border-slate-200 text-xs font-semibold text-slate-500">
-          <button onclick="app.switchTeacherTab('lessons')" id="tabBtn-lessons" class="pb-2.5 border-b-2 border-indigo-600 text-indigo-600">
+        <!-- Big touch-friendly Tabs -->
+        <div class="flex border-b border-slate-200 text-sm font-bold text-slate-500">
+          <button onclick="app.switchTeacherTab('lessons')" id="tabBtn-lessons" class="flex-1 sm:flex-initial pb-3 border-b-2 border-indigo-600 text-indigo-600 px-3 text-center">
             Занятия
           </button>
-          <button onclick="app.switchTeacherTab('students')" id="tabBtn-students" class="pb-2.5 border-b-2 border-transparent hover:text-slate-800">
+          <button onclick="app.switchTeacherTab('students')" id="tabBtn-students" class="flex-1 sm:flex-initial pb-3 border-b-2 border-transparent hover:text-slate-800 px-3 text-center">
             Ученики
           </button>
-          <button onclick="app.switchTeacherTab('classes')" id="tabBtn-classes" class="pb-2.5 border-b-2 border-transparent hover:text-slate-800">
+          <button onclick="app.switchTeacherTab('classes')" id="tabBtn-classes" class="flex-1 sm:flex-initial pb-3 border-b-2 border-transparent hover:text-slate-800 px-3 text-center">
             Классы
           </button>
         </div>
@@ -667,9 +668,9 @@ class TeacherReviewerApp {
       const btn = document.getElementById(`tabBtn-${t}`);
       if (btn) {
         if (t === tab) {
-          btn.className = "pb-2.5 border-b-2 border-indigo-600 text-indigo-600 font-semibold";
+          btn.className = "flex-1 sm:flex-initial pb-3 border-b-2 border-indigo-600 text-indigo-600 font-bold px-3 text-center";
         } else {
-          btn.className = "pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-medium";
+          btn.className = "flex-1 sm:flex-initial pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-medium px-3 text-center";
         }
       }
     });
@@ -683,31 +684,53 @@ class TeacherReviewerApp {
     if (this.activeTeacherTab === 'lessons') {
       const lessons = await this.apiCall('/api/teacher/lessons');
       if (lessons.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">Занятий пока нет. Нажмите «+ Урок», чтобы добавить занятие.</div>`;
+        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-sm">Занятий пока нет. Нажмите «+ Урок», чтобы добавить занятие.</div>`;
         return;
       }
       container.innerHTML = `
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
+        <div class="space-y-3 sm:space-y-0 sm:overflow-x-auto">
+          <!-- Mobile Cards -->
+          <div class="sm:hidden space-y-3">
+            ${lessons.map(l => `
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${l.class_name}</span>
+                    <h4 class="font-extrabold text-base text-slate-900 mt-1">${l.title}</h4>
+                  </div>
+                  <span class="text-sm font-black ${l.average_score ? 'text-indigo-600 bg-indigo-50 px-2 py-1 rounded-xl' : 'text-slate-300'}">
+                    ${l.average_score ? `${l.average_score} / 10` : '—'}
+                  </span>
+                </div>
+                <div class="flex justify-between items-center text-xs text-slate-500 pt-1 border-t border-slate-100">
+                  <span>${l.date} • ${l.start_time}–${l.end_time}</span>
+                  <span>Оценок: <strong>${l.ratings_count}</strong></span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Desktop Table -->
+          <table class="hidden sm:table w-full text-left text-sm">
             <thead>
               <tr class="text-slate-400 font-semibold border-b border-slate-100 pb-2">
-                <th class="pb-2">Дата</th>
-                <th class="pb-2">Время</th>
-                <th class="pb-2">Класс</th>
-                <th class="pb-2">Тема</th>
-                <th class="pb-2 text-center">Оценок</th>
-                <th class="pb-2 text-center">Средний балл</th>
+                <th class="pb-2.5">Дата</th>
+                <th class="pb-2.5">Время</th>
+                <th class="pb-2.5">Класс</th>
+                <th class="pb-2.5">Тема</th>
+                <th class="pb-2.5 text-center">Оценок</th>
+                <th class="pb-2.5 text-center">Средний балл</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-slate-700">
               ${lessons.map(l => `
                 <tr>
-                  <td class="py-2.5 font-medium">${l.date}</td>
-                  <td class="py-2.5">${l.start_time} - ${l.end_time}</td>
-                  <td class="py-2.5">${l.class_name}</td>
-                  <td class="py-2.5 font-semibold text-slate-900">${l.title}</td>
-                  <td class="py-2.5 text-center">${l.ratings_count}</td>
-                  <td class="py-2.5 text-center font-bold ${l.average_score ? 'text-indigo-600' : 'text-slate-300'}">
+                  <td class="py-3 font-semibold">${l.date}</td>
+                  <td class="py-3">${l.start_time} - ${l.end_time}</td>
+                  <td class="py-3">${l.class_name}</td>
+                  <td class="py-3 font-bold text-slate-900">${l.title}</td>
+                  <td class="py-3 text-center">${l.ratings_count}</td>
+                  <td class="py-3 text-center font-bold ${l.average_score ? 'text-indigo-600 text-base' : 'text-slate-300'}">
                     ${l.average_score ? `${l.average_score} / 10` : '—'}
                   </td>
                 </tr>
@@ -719,25 +742,42 @@ class TeacherReviewerApp {
     } else if (this.activeTeacherTab === 'students') {
       const students = await this.apiCall('/api/teacher/students');
       if (students.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">Учеников пока нет. Нажмите «+ Ученик», чтобы добавить ученика.</div>`;
+        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-sm">Учеников пока нет. Нажмите «+ Ученик», чтобы добавить ученика.</div>`;
         return;
       }
       container.innerHTML = `
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
+        <div class="space-y-2 sm:space-y-0 sm:overflow-x-auto">
+          <!-- Mobile Cards -->
+          <div class="sm:hidden space-y-2.5">
+            ${students.map(s => `
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-center">
+                <div>
+                  <h4 class="font-extrabold text-base text-slate-900">${s.name}</h4>
+                  <span class="text-xs text-slate-500">${s.class_name}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs text-slate-400 block">Логин</span>
+                  <span class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${s.username}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Desktop Table -->
+          <table class="hidden sm:table w-full text-left text-sm">
             <thead>
               <tr class="text-slate-400 font-semibold border-b border-slate-100 pb-2">
-                <th class="pb-2">ФИО</th>
-                <th class="pb-2">Класс</th>
-                <th class="pb-2">Логин</th>
+                <th class="pb-2.5">ФИО</th>
+                <th class="pb-2.5">Класс</th>
+                <th class="pb-2.5">Логин</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-slate-700">
               ${students.map(s => `
                 <tr>
-                  <td class="py-2.5 font-semibold text-slate-900">${s.name}</td>
-                  <td class="py-2.5">${s.class_name}</td>
-                  <td class="py-2.5 font-mono text-indigo-700">${s.username}</td>
+                  <td class="py-3 font-bold text-slate-900">${s.name}</td>
+                  <td class="py-3">${s.class_name}</td>
+                  <td class="py-3 font-mono font-semibold text-indigo-700">${s.username}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -747,18 +787,18 @@ class TeacherReviewerApp {
     } else if (this.activeTeacherTab === 'classes') {
       const classes = await this.apiCall('/api/teacher/classes');
       if (classes.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">Классов пока нет. Нажмите «+ Класс», чтобы создать.</div>`;
+        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-sm">Классов пока нет. Нажмите «+ Класс», чтобы создать.</div>`;
         return;
       }
       container.innerHTML = `
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           ${classes.map(c => `
-            <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-1">
-              <h4 class="font-bold text-sm text-slate-900">${c.name}</h4>
-              <p class="text-xs text-slate-400">${c.description || 'Без описания'}</p>
-              <div class="pt-2 text-[11px] text-slate-500 flex gap-3">
-                <span>Учеников: <strong>${c.student_count}</strong></span>
-                <span>Уроков: <strong>${c.lesson_count}</strong></span>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-2 shadow-xs">
+              <h4 class="font-extrabold text-base text-slate-900">${c.name}</h4>
+              <p class="text-xs text-slate-500">${c.description || 'Без описания'}</p>
+              <div class="pt-2 text-xs text-slate-600 flex gap-4 font-semibold">
+                <span>Учеников: <strong class="text-slate-900">${c.student_count}</strong></span>
+                <span>Уроков: <strong class="text-slate-900">${c.lesson_count}</strong></span>
               </div>
             </div>
           `).join('')}
@@ -786,6 +826,7 @@ class TeacherReviewerApp {
     document.getElementById('sliderAtmosphere').value = 9;
 
     modal.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
   }
 
   closeRatingModal() {
@@ -823,7 +864,7 @@ class TeacherReviewerApp {
       });
 
       this.closeRatingModal();
-      this.showToast("Оценка сохранена!", "success");
+      this.showToast("Оценка успешно сохранена!", "success");
       await this.renderMainView();
     } catch (err) {
       this.showToast(err.message || "Ошибка отправки", "error");
@@ -842,6 +883,7 @@ class TeacherReviewerApp {
     } catch (e) {}
 
     await this.fetchAndRenderCalendarRatings();
+    if (window.lucide) lucide.createIcons();
   }
 
   closeCalendarModal() {
@@ -867,14 +909,14 @@ class TeacherReviewerApp {
     const dateButtonsContainer = document.getElementById('calendarDateButtons');
     if (dateButtonsContainer) {
       let html = `
-        <button onclick="app.selectCalendarDate('all')" class="px-2.5 py-1 rounded text-xs font-semibold ${this.calendarDateFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}">
+        <button onclick="app.selectCalendarDate('all')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition ${this.calendarDateFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700'}">
           Все дни
         </button>
       `;
       (data.dates_with_activity || []).forEach(d => {
         const isActive = this.calendarDateFilter === d.date;
         html += `
-          <button onclick="app.selectCalendarDate('${d.date}')" class="px-2.5 py-1 rounded text-xs font-semibold ${isActive ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}">
+          <button onclick="app.selectCalendarDate('${d.date}')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition ${isActive ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700'}">
             ${d.date}
           </button>
         `;
@@ -883,26 +925,66 @@ class TeacherReviewerApp {
     }
 
     const tbody = document.getElementById('calendarTableBody');
+    const mobileList = document.getElementById('calendarMobileList');
     const emptyState = document.getElementById('calendarEmptyState');
     const list = data.ratings || [];
 
     if (list.length === 0) {
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
+      if (mobileList) mobileList.innerHTML = '';
       emptyState.classList.remove('hidden');
     } else {
       emptyState.classList.add('hidden');
-      tbody.innerHTML = list.map(r => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-2.5">${r.lesson_date}</td>
-          <td class="py-2.5 font-semibold text-slate-900">${r.student_name}</td>
-          <td class="py-2.5">${r.class_name}</td>
-          <td class="py-2.5">${r.lesson_title}</td>
-          <td class="py-2.5 text-center">${r.score_clarity}</td>
-          <td class="py-2.5 text-center">${r.score_engagement}</td>
-          <td class="py-2.5 text-center">${r.score_atmosphere}</td>
-          <td class="py-2.5 text-center font-bold text-indigo-600">${r.average_score} / 10</td>
-        </tr>
-      `).join('');
+      
+      // Desktop Table
+      if (tbody) {
+        tbody.innerHTML = list.map(r => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-3 font-medium">${r.lesson_date}</td>
+            <td class="py-3 font-bold text-slate-900">${r.student_name}</td>
+            <td class="py-3">${r.class_name}</td>
+            <td class="py-3">${r.lesson_title}</td>
+            <td class="py-3 text-center">${r.score_clarity}</td>
+            <td class="py-3 text-center">${r.score_engagement}</td>
+            <td class="py-3 text-center">${r.score_atmosphere}</td>
+            <td class="py-3 text-center font-black text-indigo-600 text-base">${r.average_score} / 10</td>
+          </tr>
+        `).join('');
+      }
+
+      // Mobile Cards
+      if (mobileList) {
+        mobileList.innerHTML = list.map(r => `
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${r.class_name}</span>
+                <h4 class="font-extrabold text-slate-900 text-base mt-1">${r.student_name}</h4>
+                <p class="text-xs text-slate-500">${r.lesson_title}</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-400 block">${r.lesson_date}</span>
+                <span class="text-lg font-black text-indigo-600">${r.average_score} / 10</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 text-center pt-1 border-t border-slate-200/60 text-xs">
+              <div class="bg-white p-2 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">Понятность</span>
+                <span class="font-bold text-slate-800">${r.score_clarity}</span>
+              </div>
+              <div class="bg-white p-2 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">Интерес</span>
+                <span class="font-bold text-slate-800">${r.score_engagement}</span>
+              </div>
+              <div class="bg-white p-2 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">Атмосфера</span>
+                <span class="font-bold text-slate-800">${r.score_atmosphere}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
     }
   }
 
@@ -1043,10 +1125,10 @@ class TeacherReviewerApp {
     const c = document.getElementById('toastContainer');
     if (!c) return;
     const t = document.createElement('div');
-    t.className = `px-3.5 py-2 rounded-xl text-xs font-semibold text-white shadow-lg ${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900'}`;
+    t.className = `w-full sm:w-auto px-5 py-3 rounded-2xl text-sm font-bold text-white shadow-xl flex items-center justify-center ${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900'}`;
     t.textContent = msg;
     c.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
+    setTimeout(() => t.remove(), 3500);
   }
 }
 
