@@ -1,6 +1,6 @@
 /**
  * Teacher Reviewer Platform
- * Clean, Mobile-First, Large-Format UI
+ * Bold, Screen-Filling, Mobile-First UI Engine
  */
 
 class TeacherReviewerApp {
@@ -17,7 +17,7 @@ class TeacherReviewerApp {
     this.calendarClassFilter = '';
 
     // Clear legacy test data if any
-    if (localStorage.getItem('tr_v3_cleaned') !== 'true') {
+    if (localStorage.getItem('tr_v4_large_cleaned') !== 'true') {
       localStorage.removeItem('tr_classes');
       localStorage.removeItem('tr_lessons');
       localStorage.removeItem('tr_ratings');
@@ -26,7 +26,7 @@ class TeacherReviewerApp {
       localStorage.removeItem('tr_token');
       this.currentUser = null;
       this.token = null;
-      localStorage.setItem('tr_v3_cleaned', 'true');
+      localStorage.setItem('tr_v4_large_cleaned', 'true');
     }
 
     this.initStandaloneStore();
@@ -46,7 +46,7 @@ class TeacherReviewerApp {
   }
 
   initStandaloneStore() {
-    // Only teacher maxim / 314159, no mock data
+    // Only teacher maxim / 314159, zero dummy test data
     if (!localStorage.getItem('tr_classes')) {
       localStorage.setItem('tr_classes', JSON.stringify([]));
     }
@@ -406,14 +406,14 @@ class TeacherReviewerApp {
       const label = isTeacher ? 'Учитель' : this.currentUser.name;
 
       container.innerHTML = `
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <div class="bg-slate-100 px-2.5 sm:px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-800">
-            <i data-lucide="${isTeacher ? 'award' : 'user'}" class="w-4 h-4 text-indigo-600"></i>
-            <span class="max-w-[120px] sm:max-w-none truncate">${label}</span>
+        <div class="flex items-center gap-2">
+          <div class="bg-slate-100 px-3.5 py-2 rounded-2xl flex items-center gap-2 text-sm sm:text-base font-extrabold text-slate-800">
+            <i data-lucide="${isTeacher ? 'award' : 'user'}" class="w-5 h-5 text-indigo-600"></i>
+            <span class="max-w-[140px] sm:max-w-none truncate">${label}</span>
           </div>
           <button onclick="app.logout()" title="Выйти"
-                  class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 active:scale-95 text-slate-500 flex items-center justify-center transition">
-            <i data-lucide="log-out" class="w-5 h-5"></i>
+                  class="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 active:scale-95 text-slate-500 flex items-center justify-center transition shadow-xs">
+            <i data-lucide="log-out" class="w-6 h-6"></i>
           </button>
         </div>
       `;
@@ -442,40 +442,41 @@ class TeacherReviewerApp {
     }
   }
 
-  // --- LOGIN VIEW ---
+  // --- LOGIN VIEW (SCREEN FILLING & CHUNKY) ---
   getLoginViewHTML() {
     return `
-      <div class="max-w-md mx-auto my-6 sm:my-14 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 space-y-6 shadow-sm">
-        <div class="text-center space-y-2">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-2">
-            <i data-lucide="user-check" class="w-7 h-7"></i>
+      <div class="w-full bg-white rounded-3xl border-2 border-slate-200/90 p-7 sm:p-10 space-y-7 shadow-sm">
+        <div class="text-center space-y-3">
+          <div class="w-16 h-16 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+            <i data-lucide="user-check" class="w-8 h-8"></i>
           </div>
-          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Вход в систему</h2>
-          <p class="text-sm text-slate-500">Войдите как учитель или ученик</p>
+          <h2 class="text-3xl font-black text-slate-900 tracking-tight">Вход в систему</h2>
+          <p class="text-base text-slate-500 font-medium">Войдите под своей учётной записью</p>
         </div>
 
-        <form onsubmit="app.handleLoginFormSubmit(event)" class="space-y-4">
+        <form onsubmit="app.handleLoginFormSubmit(event)" class="space-y-5">
           <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1.5">Логин</label>
+            <label class="block text-base font-extrabold text-slate-800 mb-2">Логин</label>
             <input type="text" id="loginUsername" required placeholder="Введите логин"
-                   class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-base focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none transition">
+                   class="w-full px-5 py-4 rounded-2xl border-2 border-slate-300 text-lg font-medium focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none transition">
           </div>
 
           <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1.5">Пароль</label>
+            <label class="block text-base font-extrabold text-slate-800 mb-2">Пароль</label>
             <input type="password" id="loginPassword" required placeholder="Введите пароль"
-                   class="w-full px-4 py-3.5 rounded-2xl border border-slate-300 text-base focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none transition">
+                   class="w-full px-5 py-4 rounded-2xl border-2 border-slate-300 text-lg font-medium focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none transition">
           </div>
 
-          <button type="submit" class="w-full py-4 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-bold text-base shadow-md shadow-indigo-600/20 active:scale-[0.99] transition mt-2">
-            Войти
+          <button type="submit" class="w-full py-5 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-black text-xl shadow-xl shadow-indigo-600/25 active:scale-[0.98] transition mt-3 flex items-center justify-center gap-2">
+            <span>Войти</span>
+            <i data-lucide="arrow-right" class="w-6 h-6 stroke-[3]"></i>
           </button>
         </form>
       </div>
     `;
   }
 
-  // --- STUDENT VIEW (MOBILE FIRST & LARGE DATE) ---
+  // --- STUDENT VIEW (BOLD, PROMINENT, ZERO UNUSED VOIDS) ---
   async getStudentViewHTML() {
     let dash;
     try {
@@ -502,18 +503,18 @@ class TeacherReviewerApp {
     let actionHTML = "";
 
     if (isNoLessonDay) {
-      // Gray disabled design on days without a lesson
+      // Gray disabled design when no lesson today
       actionHTML = `
-        <div class="no-lesson-card rounded-3xl p-6 sm:p-10 text-center space-y-4">
-          <div class="w-16 h-16 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center mx-auto shadow-inner">
-            <i data-lucide="calendar-off" class="w-8 h-8"></i>
+        <div class="no-lesson-card rounded-3xl p-8 sm:p-12 text-center space-y-6">
+          <div class="w-20 h-20 rounded-3xl bg-slate-200 text-slate-500 flex items-center justify-center mx-auto shadow-inner">
+            <i data-lucide="calendar-off" class="w-10 h-10"></i>
           </div>
-          <div class="space-y-1">
-            <h3 class="font-extrabold text-slate-700 text-xl sm:text-2xl">Сегодня занятий нет</h3>
-            <p class="text-sm sm:text-base text-slate-500">В этот день оценивание недоступно</p>
+          <div class="space-y-2">
+            <h3 class="font-black text-slate-800 text-2xl sm:text-3xl">Сегодня занятий нет</h3>
+            <p class="text-base sm:text-lg text-slate-500 font-medium">Оценивание уроков на сегодня недоступно</p>
           </div>
           <div class="pt-2">
-            <button disabled class="no-lesson-disabled-btn w-full py-4 px-6 rounded-2xl text-base font-bold shadow-none">
+            <button disabled class="no-lesson-disabled-btn w-full py-5 px-6 rounded-2xl text-lg sm:text-xl font-black">
               Оценить урок (Нет занятий)
             </button>
           </div>
@@ -523,21 +524,21 @@ class TeacherReviewerApp {
       // Cannot rate before lesson starts
       const lesson = dash.today_lesson;
       actionHTML = `
-        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
-          <div class="space-y-2">
-            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
-              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+        <div class="bg-white border-2 border-slate-200/90 rounded-3xl p-7 sm:p-10 space-y-6 shadow-sm">
+          <div class="space-y-3">
+            <span class="inline-flex items-center gap-2 text-sm font-black text-amber-900 bg-amber-100 px-4 py-1.5 rounded-full">
+              <i data-lucide="clock" class="w-4 h-4"></i>
               Начало в ${lesson.start_time}
             </span>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">${lesson.title}</h3>
-            <p class="text-sm sm:text-base text-slate-500 font-medium">Время урока: ${lesson.start_time} – ${lesson.end_time}</p>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 leading-snug">${lesson.title}</h3>
+            <p class="text-base sm:text-lg text-slate-500 font-semibold">Время занятия: ${lesson.start_time} – ${lesson.end_time}</p>
           </div>
 
           <div class="pt-2 space-y-2">
-            <button disabled class="w-full py-4 rounded-2xl bg-slate-200 text-slate-500 font-bold text-base cursor-not-allowed">
+            <button disabled class="w-full py-5 rounded-2xl bg-slate-200 text-slate-500 font-black text-lg sm:text-xl cursor-not-allowed">
               Оценить урок (Доступно с ${lesson.start_time})
             </button>
-            <p class="text-xs text-center text-slate-400 font-medium">Оценку нельзя поставить до начала занятия</p>
+            <p class="text-sm text-center text-slate-400 font-bold">Оценку нельзя поставить до начала занятия</p>
           </div>
         </div>
       `;
@@ -546,62 +547,62 @@ class TeacherReviewerApp {
       const r = dash.existing_rating;
       const lesson = dash.today_lesson;
       actionHTML = `
-        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-          <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+        <div class="bg-white border-2 border-slate-200/90 rounded-3xl p-7 sm:p-10 space-y-7 shadow-sm">
+          <div class="flex items-start justify-between border-b-2 border-slate-100 pb-5">
             <div>
-              <span class="inline-flex items-center gap-1 text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full mb-1.5">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span class="inline-flex items-center gap-1.5 text-sm font-black text-emerald-800 bg-emerald-100 px-4 py-1.5 rounded-full mb-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
                 Урок оценен
               </span>
-              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">${lesson.title}</h3>
+              <h3 class="text-2xl font-black text-slate-900 mt-1">${lesson.title}</h3>
             </div>
           </div>
 
           <!-- Score cards -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
-            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
-              <span class="text-xs text-slate-500 font-medium block">Понятность</span>
-              <span class="font-extrabold text-lg text-slate-900 mt-0.5 block">${r.score_clarity} / 10</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="bg-slate-50 border-2 border-slate-200/70 p-4 rounded-2xl">
+              <span class="text-xs sm:text-sm text-slate-500 font-bold block">Понятность</span>
+              <span class="font-black text-2xl text-slate-900 mt-1 block">${r.score_clarity} / 10</span>
             </div>
-            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
-              <span class="text-xs text-slate-500 font-medium block">Интерес</span>
-              <span class="font-extrabold text-lg text-slate-900 mt-0.5 block">${r.score_engagement} / 10</span>
+            <div class="bg-slate-50 border-2 border-slate-200/70 p-4 rounded-2xl">
+              <span class="text-xs sm:text-sm text-slate-500 font-bold block">Интерес</span>
+              <span class="font-black text-2xl text-slate-900 mt-1 block">${r.score_engagement} / 10</span>
             </div>
-            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl">
-              <span class="text-xs text-slate-500 font-medium block">Атмосфера</span>
-              <span class="font-extrabold text-lg text-slate-900 mt-0.5 block">${r.score_atmosphere} / 10</span>
+            <div class="bg-slate-50 border-2 border-slate-200/70 p-4 rounded-2xl">
+              <span class="text-xs sm:text-sm text-slate-500 font-bold block">Атмосфера</span>
+              <span class="font-black text-2xl text-slate-900 mt-1 block">${r.score_atmosphere} / 10</span>
             </div>
-            <div class="bg-indigo-600 text-white p-3.5 rounded-2xl shadow-sm">
-              <span class="text-xs text-indigo-100 font-medium block">Итог</span>
-              <span class="font-black text-xl text-amber-300 mt-0.5 block">${r.average_score} / 10</span>
+            <div class="bg-indigo-600 text-white p-4 rounded-2xl shadow-md shadow-indigo-600/25">
+              <span class="text-xs sm:text-sm text-indigo-100 font-bold block">Итог</span>
+              <span class="font-black text-2xl sm:text-3xl text-amber-300 mt-1 block">${r.average_score} / 10</span>
             </div>
           </div>
 
           <div class="pt-1">
-            <button disabled class="w-full py-3.5 rounded-2xl bg-slate-100 text-slate-400 font-semibold text-sm cursor-not-allowed">
-              Оценка сохранена (изменение невозможно)
+            <button disabled class="w-full py-4 rounded-2xl bg-slate-100 text-slate-400 font-bold text-base cursor-not-allowed">
+              Оценка зафиксирована (изменить нельзя)
             </button>
           </div>
         </div>
       `;
     } else {
-      // Ready to rate: big prominent button!
+      // Ready to rate: HUGE prominent button!
       const lesson = dash.today_lesson;
       actionHTML = `
-        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
-          <div class="space-y-2">
-            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1 rounded-full">
-              <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-indigo-600"></i>
+        <div class="bg-white border-2 border-slate-200/90 rounded-3xl p-7 sm:p-10 space-y-6 shadow-sm">
+          <div class="space-y-3">
+            <span class="inline-flex items-center gap-2 text-sm font-black text-indigo-800 bg-indigo-100 px-4 py-1.5 rounded-full">
+              <i data-lucide="bell-ring" class="w-4 h-4 text-indigo-600"></i>
               Занятие готово к оценке
             </span>
-            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">${lesson.title}</h3>
-            <p class="text-sm sm:text-base text-slate-500 font-medium">${lesson.start_time} – ${lesson.end_time}</p>
+            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 leading-snug">${lesson.title}</h3>
+            <p class="text-base sm:text-lg text-slate-500 font-semibold">${lesson.start_time} – ${lesson.end_time}</p>
           </div>
 
           <div class="pt-2">
             <button onclick="app.openRatingModal(${lesson.id}, '${encodeURIComponent(lesson.title)}', '${lesson.date}', '${lesson.start_time} – ${lesson.end_time}')"
-                    class="w-full py-4 px-6 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-extrabold text-base sm:text-lg shadow-lg shadow-indigo-600/25 active:scale-[0.99] transition flex items-center justify-center gap-2">
-              <i data-lucide="star" class="w-5 h-5"></i>
+                    class="w-full py-5 px-8 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-black text-xl sm:text-2xl shadow-xl shadow-indigo-600/30 active:scale-[0.98] transition flex items-center justify-center gap-3">
+              <i data-lucide="star" class="w-7 h-7 fill-white/20"></i>
               <span>Оценить урок</span>
             </button>
           </div>
@@ -611,10 +612,10 @@ class TeacherReviewerApp {
 
     return `
       <div class="space-y-6">
-        <!-- Prominent Date Header -->
-        <div class="text-center space-y-1 py-1">
-          <span class="text-xs sm:text-sm font-bold text-indigo-600 uppercase tracking-widest block">Сегодня</span>
-          <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">${todayFormatted}</h1>
+        <!-- Prominent Solid Date Header -->
+        <div class="bg-indigo-600 text-white rounded-3xl p-6 sm:p-8 text-center shadow-lg shadow-indigo-600/20">
+          <span class="text-xs sm:text-sm font-black text-indigo-200 uppercase tracking-widest block mb-1">Сегодняшняя дата</span>
+          <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-snug">${todayFormatted}</h1>
         </div>
 
         ${actionHTML}
@@ -622,37 +623,37 @@ class TeacherReviewerApp {
     `;
   }
 
-  // --- TEACHER VIEW ---
+  // --- TEACHER VIEW (LARGE FORMAT) ---
   async getTeacherViewHTML() {
     return `
-      <div class="space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+      <div class="space-y-7">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-200 pb-5">
           <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Кабинет учителя</h1>
-            <p class="text-sm text-slate-500">Управление классами, учениками и занятиями</p>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Кабинет учителя</h1>
+            <p class="text-base text-slate-500 font-medium">Управление классами, учениками и занятиями</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="app.openModal('createLessonModal')" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-indigo-600 active:bg-indigo-700 text-white text-sm font-bold shadow-sm">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="app.openModal('createLessonModal')" class="flex-1 sm:flex-initial px-5 py-3 rounded-2xl bg-indigo-600 active:bg-indigo-700 text-white text-base font-black shadow-md shadow-indigo-600/20">
               + Урок
             </button>
-            <button onclick="app.openModal('createStudentModal')" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-800 text-sm font-bold">
+            <button onclick="app.openModal('createStudentModal')" class="flex-1 sm:flex-initial px-5 py-3 rounded-2xl border-2 border-slate-300 hover:bg-slate-100 text-slate-800 text-base font-extrabold">
               + Ученик
             </button>
-            <button onclick="app.openModal('createClassModal')" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-800 text-sm font-bold">
+            <button onclick="app.openModal('createClassModal')" class="flex-1 sm:flex-initial px-5 py-3 rounded-2xl border-2 border-slate-300 hover:bg-slate-100 text-slate-800 text-base font-extrabold">
               + Класс
             </button>
           </div>
         </div>
 
         <!-- Big touch-friendly Tabs -->
-        <div class="flex border-b border-slate-200 text-sm font-bold text-slate-500">
-          <button onclick="app.switchTeacherTab('lessons')" id="tabBtn-lessons" class="flex-1 sm:flex-initial pb-3 border-b-2 border-indigo-600 text-indigo-600 px-3 text-center">
+        <div class="flex border-b-2 border-slate-200 text-base sm:text-lg font-black text-slate-500">
+          <button onclick="app.switchTeacherTab('lessons')" id="tabBtn-lessons" class="flex-1 sm:flex-initial pb-3.5 border-b-4 border-indigo-600 text-indigo-600 px-4 text-center">
             Занятия
           </button>
-          <button onclick="app.switchTeacherTab('students')" id="tabBtn-students" class="flex-1 sm:flex-initial pb-3 border-b-2 border-transparent hover:text-slate-800 px-3 text-center">
+          <button onclick="app.switchTeacherTab('students')" id="tabBtn-students" class="flex-1 sm:flex-initial pb-3.5 border-b-4 border-transparent hover:text-slate-800 px-4 text-center">
             Ученики
           </button>
-          <button onclick="app.switchTeacherTab('classes')" id="tabBtn-classes" class="flex-1 sm:flex-initial pb-3 border-b-2 border-transparent hover:text-slate-800 px-3 text-center">
+          <button onclick="app.switchTeacherTab('classes')" id="tabBtn-classes" class="flex-1 sm:flex-initial pb-3.5 border-b-4 border-transparent hover:text-slate-800 px-4 text-center">
             Классы
           </button>
         </div>
@@ -668,9 +669,9 @@ class TeacherReviewerApp {
       const btn = document.getElementById(`tabBtn-${t}`);
       if (btn) {
         if (t === tab) {
-          btn.className = "flex-1 sm:flex-initial pb-3 border-b-2 border-indigo-600 text-indigo-600 font-bold px-3 text-center";
+          btn.className = "flex-1 sm:flex-initial pb-3.5 border-b-4 border-indigo-600 text-indigo-600 font-black px-4 text-center";
         } else {
-          btn.className = "flex-1 sm:flex-initial pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-medium px-3 text-center";
+          btn.className = "flex-1 sm:flex-initial pb-3.5 border-b-4 border-transparent text-slate-500 hover:text-slate-800 font-bold px-4 text-center";
         }
       }
     });
@@ -684,121 +685,69 @@ class TeacherReviewerApp {
     if (this.activeTeacherTab === 'lessons') {
       const lessons = await this.apiCall('/api/teacher/lessons');
       if (lessons.length === 0) {
-        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-sm">Занятий пока нет. Нажмите «+ Урок», чтобы добавить занятие.</div>`;
+        container.innerHTML = `<div class="text-center py-20 text-slate-400 text-base font-bold">Занятий пока нет. Нажмите «+ Урок», чтобы добавить урок.</div>`;
         return;
       }
       container.innerHTML = `
-        <div class="space-y-3 sm:space-y-0 sm:overflow-x-auto">
-          <!-- Mobile Cards -->
-          <div class="sm:hidden space-y-3">
-            ${lessons.map(l => `
-              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${l.class_name}</span>
-                    <h4 class="font-extrabold text-base text-slate-900 mt-1">${l.title}</h4>
-                  </div>
-                  <span class="text-sm font-black ${l.average_score ? 'text-indigo-600 bg-indigo-50 px-2 py-1 rounded-xl' : 'text-slate-300'}">
+        <div class="space-y-4">
+          ${lessons.map(l => `
+            <div class="bg-white p-5 sm:p-6 rounded-3xl border-2 border-slate-200/90 shadow-xs space-y-3">
+              <div class="flex justify-between items-start gap-3">
+                <div>
+                  <span class="text-xs font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">${l.class_name}</span>
+                  <h4 class="font-black text-xl sm:text-2xl text-slate-900 mt-1.5">${l.title}</h4>
+                </div>
+                <div class="text-right">
+                  <span class="text-xl sm:text-2xl font-black ${l.average_score ? 'text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-2xl' : 'text-slate-300'}">
                     ${l.average_score ? `${l.average_score} / 10` : '—'}
                   </span>
                 </div>
-                <div class="flex justify-between items-center text-xs text-slate-500 pt-1 border-t border-slate-100">
-                  <span>${l.date} • ${l.start_time}–${l.end_time}</span>
-                  <span>Оценок: <strong>${l.ratings_count}</strong></span>
-                </div>
               </div>
-            `).join('')}
-          </div>
-
-          <!-- Desktop Table -->
-          <table class="hidden sm:table w-full text-left text-sm">
-            <thead>
-              <tr class="text-slate-400 font-semibold border-b border-slate-100 pb-2">
-                <th class="pb-2.5">Дата</th>
-                <th class="pb-2.5">Время</th>
-                <th class="pb-2.5">Класс</th>
-                <th class="pb-2.5">Тема</th>
-                <th class="pb-2.5 text-center">Оценок</th>
-                <th class="pb-2.5 text-center">Средний балл</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-slate-700">
-              ${lessons.map(l => `
-                <tr>
-                  <td class="py-3 font-semibold">${l.date}</td>
-                  <td class="py-3">${l.start_time} - ${l.end_time}</td>
-                  <td class="py-3">${l.class_name}</td>
-                  <td class="py-3 font-bold text-slate-900">${l.title}</td>
-                  <td class="py-3 text-center">${l.ratings_count}</td>
-                  <td class="py-3 text-center font-bold ${l.average_score ? 'text-indigo-600 text-base' : 'text-slate-300'}">
-                    ${l.average_score ? `${l.average_score} / 10` : '—'}
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+              <div class="flex justify-between items-center text-sm font-semibold text-slate-500 pt-2 border-t border-slate-100">
+                <span>${l.date} • ${l.start_time}–${l.end_time}</span>
+                <span>Оценок: <strong class="text-slate-900 text-base">${l.ratings_count}</strong></span>
+              </div>
+            </div>
+          `).join('')}
         </div>
       `;
     } else if (this.activeTeacherTab === 'students') {
       const students = await this.apiCall('/api/teacher/students');
       if (students.length === 0) {
-        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-sm">Учеников пока нет. Нажмите «+ Ученик», чтобы добавить ученика.</div>`;
+        container.innerHTML = `<div class="text-center py-20 text-slate-400 text-base font-bold">Учеников пока нет. Нажмите «+ Ученик», чтобы добавить ученика.</div>`;
         return;
       }
       container.innerHTML = `
-        <div class="space-y-2 sm:space-y-0 sm:overflow-x-auto">
-          <!-- Mobile Cards -->
-          <div class="sm:hidden space-y-2.5">
-            ${students.map(s => `
-              <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-center">
-                <div>
-                  <h4 class="font-extrabold text-base text-slate-900">${s.name}</h4>
-                  <span class="text-xs text-slate-500">${s.class_name}</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-xs text-slate-400 block">Логин</span>
-                  <span class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${s.username}</span>
-                </div>
+        <div class="space-y-3">
+          ${students.map(s => `
+            <div class="bg-white p-5 rounded-3xl border-2 border-slate-200/90 shadow-xs flex justify-between items-center">
+              <div>
+                <h4 class="font-black text-lg sm:text-xl text-slate-900">${s.name}</h4>
+                <span class="text-sm font-semibold text-slate-500">${s.class_name}</span>
               </div>
-            `).join('')}
-          </div>
-
-          <!-- Desktop Table -->
-          <table class="hidden sm:table w-full text-left text-sm">
-            <thead>
-              <tr class="text-slate-400 font-semibold border-b border-slate-100 pb-2">
-                <th class="pb-2.5">ФИО</th>
-                <th class="pb-2.5">Класс</th>
-                <th class="pb-2.5">Логин</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-slate-700">
-              ${students.map(s => `
-                <tr>
-                  <td class="py-3 font-bold text-slate-900">${s.name}</td>
-                  <td class="py-3">${s.class_name}</td>
-                  <td class="py-3 font-mono font-semibold text-indigo-700">${s.username}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+              <div class="text-right">
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">Логин</span>
+                <span class="font-mono text-sm sm:text-base font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">${s.username}</span>
+              </div>
+            </div>
+          `).join('')}
         </div>
       `;
     } else if (this.activeTeacherTab === 'classes') {
       const classes = await this.apiCall('/api/teacher/classes');
       if (classes.length === 0) {
-        container.innerHTML = `<div class="text-center py-16 text-slate-400 text-sm">Классов пока нет. Нажмите «+ Класс», чтобы создать.</div>`;
+        container.innerHTML = `<div class="text-center py-20 text-slate-400 text-base font-bold">Классов пока нет. Нажмите «+ Класс», чтобы создать класс.</div>`;
         return;
       }
       container.innerHTML = `
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           ${classes.map(c => `
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-2 shadow-xs">
-              <h4 class="font-extrabold text-base text-slate-900">${c.name}</h4>
-              <p class="text-xs text-slate-500">${c.description || 'Без описания'}</p>
-              <div class="pt-2 text-xs text-slate-600 flex gap-4 font-semibold">
-                <span>Учеников: <strong class="text-slate-900">${c.student_count}</strong></span>
-                <span>Уроков: <strong class="text-slate-900">${c.lesson_count}</strong></span>
+            <div class="bg-white p-6 rounded-3xl border-2 border-slate-200/90 space-y-3 shadow-xs">
+              <h4 class="font-black text-xl text-slate-900">${c.name}</h4>
+              <p class="text-sm text-slate-500 font-medium">${c.description || 'Без описания'}</p>
+              <div class="pt-3 text-sm text-slate-600 flex gap-5 font-bold border-t border-slate-100">
+                <span>Учеников: <strong class="text-slate-900 text-base">${c.student_count}</strong></span>
+                <span>Уроков: <strong class="text-slate-900 text-base">${c.lesson_count}</strong></span>
               </div>
             </div>
           `).join('')}
@@ -909,14 +858,14 @@ class TeacherReviewerApp {
     const dateButtonsContainer = document.getElementById('calendarDateButtons');
     if (dateButtonsContainer) {
       let html = `
-        <button onclick="app.selectCalendarDate('all')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition ${this.calendarDateFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700'}">
+        <button onclick="app.selectCalendarDate('all')" class="whitespace-nowrap px-4 py-2 rounded-2xl text-sm font-black transition ${this.calendarDateFilter === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white border-2 border-slate-300 text-slate-800'}">
           Все дни
         </button>
       `;
       (data.dates_with_activity || []).forEach(d => {
         const isActive = this.calendarDateFilter === d.date;
         html += `
-          <button onclick="app.selectCalendarDate('${d.date}')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition ${isActive ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-300 text-slate-700'}">
+          <button onclick="app.selectCalendarDate('${d.date}')" class="whitespace-nowrap px-4 py-2 rounded-2xl text-sm font-black transition ${isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white border-2 border-slate-300 text-slate-800'}">
             ${d.date}
           </button>
         `;
@@ -924,62 +873,42 @@ class TeacherReviewerApp {
       dateButtonsContainer.innerHTML = html;
     }
 
-    const tbody = document.getElementById('calendarTableBody');
-    const mobileList = document.getElementById('calendarMobileList');
+    const cardsContainer = document.getElementById('calendarCardsList');
     const emptyState = document.getElementById('calendarEmptyState');
     const list = data.ratings || [];
 
     if (list.length === 0) {
-      if (tbody) tbody.innerHTML = '';
-      if (mobileList) mobileList.innerHTML = '';
+      if (cardsContainer) cardsContainer.innerHTML = '';
       emptyState.classList.remove('hidden');
     } else {
       emptyState.classList.add('hidden');
-      
-      // Desktop Table
-      if (tbody) {
-        tbody.innerHTML = list.map(r => `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 font-medium">${r.lesson_date}</td>
-            <td class="py-3 font-bold text-slate-900">${r.student_name}</td>
-            <td class="py-3">${r.class_name}</td>
-            <td class="py-3">${r.lesson_title}</td>
-            <td class="py-3 text-center">${r.score_clarity}</td>
-            <td class="py-3 text-center">${r.score_engagement}</td>
-            <td class="py-3 text-center">${r.score_atmosphere}</td>
-            <td class="py-3 text-center font-black text-indigo-600 text-base">${r.average_score} / 10</td>
-          </tr>
-        `).join('');
-      }
-
-      // Mobile Cards
-      if (mobileList) {
-        mobileList.innerHTML = list.map(r => `
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-            <div class="flex justify-between items-start">
+      if (cardsContainer) {
+        cardsContainer.innerHTML = list.map(r => `
+          <div class="bg-white border-2 border-slate-200/90 rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs">
+            <div class="flex justify-between items-start gap-3">
               <div>
-                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${r.class_name}</span>
-                <h4 class="font-extrabold text-slate-900 text-base mt-1">${r.student_name}</h4>
-                <p class="text-xs text-slate-500">${r.lesson_title}</p>
+                <span class="text-xs font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-xl">${r.class_name}</span>
+                <h4 class="font-black text-slate-900 text-xl sm:text-2xl mt-1.5">${r.student_name}</h4>
+                <p class="text-sm font-semibold text-slate-500">${r.lesson_title}</p>
               </div>
               <div class="text-right">
-                <span class="text-xs text-slate-400 block">${r.lesson_date}</span>
-                <span class="text-lg font-black text-indigo-600">${r.average_score} / 10</span>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">${r.lesson_date}</span>
+                <span class="text-2xl sm:text-3xl font-black text-indigo-600">${r.average_score} / 10</span>
               </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-1.5 text-center pt-1 border-t border-slate-200/60 text-xs">
-              <div class="bg-white p-2 rounded-xl border border-slate-100">
-                <span class="text-[10px] text-slate-400 block">Понятность</span>
-                <span class="font-bold text-slate-800">${r.score_clarity}</span>
+            <div class="grid grid-cols-3 gap-2 text-center pt-2 border-t-2 border-slate-100">
+              <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-xs text-slate-400 font-bold block">Понятность</span>
+                <span class="font-black text-lg text-slate-800 mt-0.5 block">${r.score_clarity}</span>
               </div>
-              <div class="bg-white p-2 rounded-xl border border-slate-100">
-                <span class="text-[10px] text-slate-400 block">Интерес</span>
-                <span class="font-bold text-slate-800">${r.score_engagement}</span>
+              <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-xs text-slate-400 font-bold block">Интерес</span>
+                <span class="font-black text-lg text-slate-800 mt-0.5 block">${r.score_engagement}</span>
               </div>
-              <div class="bg-white p-2 rounded-xl border border-slate-100">
-                <span class="text-[10px] text-slate-400 block">Атмосфера</span>
-                <span class="font-bold text-slate-800">${r.score_atmosphere}</span>
+              <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-xs text-slate-400 font-bold block">Атмосфера</span>
+                <span class="font-black text-lg text-slate-800 mt-0.5 block">${r.score_atmosphere}</span>
               </div>
             </div>
           </div>
@@ -1125,7 +1054,7 @@ class TeacherReviewerApp {
     const c = document.getElementById('toastContainer');
     if (!c) return;
     const t = document.createElement('div');
-    t.className = `w-full sm:w-auto px-5 py-3 rounded-2xl text-sm font-bold text-white shadow-xl flex items-center justify-center ${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900'}`;
+    t.className = `w-full sm:w-auto px-6 py-4 rounded-2xl text-base font-black text-white shadow-2xl flex items-center justify-center ${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900'}`;
     t.textContent = msg;
     c.appendChild(t);
     setTimeout(() => t.remove(), 3500);
