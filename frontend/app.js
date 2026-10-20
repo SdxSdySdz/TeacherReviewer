@@ -247,7 +247,7 @@ class TeacherReviewerApp {
               <span class="font-black text-2xl text-slate-900 mt-1 block">${r.score_engagement} / 10</span>
             </div>
             <div class="bg-slate-50 border-2 border-slate-200/70 p-4 rounded-2xl">
-              <span class="text-xs sm:text-sm text-slate-500 font-bold block">Атмосфера</span>
+              <span class="text-xs sm:text-sm text-slate-500 font-bold block">Комфорт</span>
               <span class="font-black text-2xl text-slate-900 mt-1 block">${r.score_atmosphere} / 10</span>
             </div>
             <div class="bg-indigo-600 text-white p-4 rounded-2xl shadow-md shadow-indigo-600/25">
@@ -853,7 +853,7 @@ class TeacherReviewerApp {
                 <span class="font-black text-lg text-slate-800 mt-0.5 block">${r.score_engagement}</span>
               </div>
               <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
-                <span class="text-xs text-slate-400 font-bold block">Атмосфера</span>
+                <span class="text-xs text-slate-400 font-bold block">Комфорт</span>
                 <span class="font-black text-lg text-slate-800 mt-0.5 block">${r.score_atmosphere}</span>
               </div>
             </div>
