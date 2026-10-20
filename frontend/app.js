@@ -97,7 +97,8 @@ class TeacherReviewerApp {
     }
     options.headers['Content-Type'] = 'application/json';
 
-    const resp = await fetch(endpoint, options);
+    const baseUrl = (window.location.hostname === '5-129-242-87.sslip.io') ? '' : 'https://5-129-242-87.sslip.io';
+    const resp = await fetch(`${baseUrl}${endpoint}`, options);
     if (resp.ok) {
       return await resp.json();
     }
