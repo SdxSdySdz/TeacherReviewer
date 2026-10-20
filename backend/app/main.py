@@ -12,6 +12,8 @@ try:
     from .database import get_db, init_db
     from .auth import create_token, get_current_user, require_teacher, require_student
     from .models import (
+    StudentUpdate,
+    ClassUpdate,
         LoginRequest, LoginResponse, UserResponse,
         ClassCreate, ClassResponse,
         StudentCreate, StudentResponse,
@@ -23,6 +25,8 @@ except (ImportError, ValueError):
     from database import get_db, init_db
     from auth import create_token, get_current_user, require_teacher, require_student
     from models import (
+    StudentUpdate,
+    ClassUpdate,
         LoginRequest, LoginResponse, UserResponse,
         ClassCreate, ClassResponse,
         StudentCreate, StudentResponse,

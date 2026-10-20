@@ -93,3 +93,13 @@ class RatingResponse(BaseModel):
     average_score: float
     comment: str
     created_at: str
+
+class StudentUpdate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    class_id: int
+    username: str = Field(..., min_length=3, max_length=50)
+    password: Optional[str] = None
+
+class ClassUpdate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = ""
