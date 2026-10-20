@@ -2,499 +2,341 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Оценка Уроков — Персональная Платформа Учителя</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Оценка занятий</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- Top Navigation Bar -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-white/90">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       
-      <!-- Logo & System Title -->
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="app.navigateHome()">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
-          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+      <!-- Brand -->
+      <div class="flex items-center space-x-2.5 cursor-pointer select-none active:opacity-70 transition" onclick="app.navigateHome()">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="check-square" class="w-5 h-5"></i>
         </div>
         <div>
-          <span class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
-            Учитель.Отзывы
-            <span class="text-xs bg-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-full">v1.0</span>
-          </span>
-          <p class="text-xs text-slate-500">Система оценки занятий учениками</p>
+          <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 block leading-tight">Оценка занятий</span>
         </div>
       </div>
 
-      <!-- Center: Today's Date -->
-      <div id="headerDateBadge" class="hidden md:flex items-center gap-2 bg-slate-100 border border-slate-200/80 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-700">
-        <i data-lucide="calendar" class="w-4 h-4 text-indigo-600"></i>
-        <span id="headerTodayText">Сегодня: Загрузка даты...</span>
-      </div>
-
-      <!-- Right Header Actions -->
-      <div class="flex items-center space-x-3">
-        
-        <!-- CALENDAR ICON BUTTON (Required: on main page) -->
-        <button id="calendarIconButton" onclick="app.openCalendarModal()" title="Журнал и календарь оценок всех учеников" 
-                class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-all shadow-sm">
-          <i data-lucide="calendar-days" class="w-5 h-5 text-indigo-600"></i>
-          <span class="text-sm font-semibold hidden sm:inline">Оценки учеников</span>
+      <!-- Right Actions: Calendar Button + User/Logout -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Calendar Icon Button (Prominent touch target) -->
+        <button id="calendarIconButton" onclick="app.openCalendarModal()" title="Журнал оценок"
+                class="min-h-[42px] px-3 sm:px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 active:scale-95 text-indigo-700 transition flex items-center gap-2 font-bold text-sm">
+          <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+          <span class="inline">Оценки</span>
         </button>
 
-        <!-- Auth Area (User Badge or Login Button) -->
-        <div id="authNavContainer" class="flex items-center space-x-2">
-          <!-- Injected via JavaScript -->
+        <div id="authNavContainer" class="flex items-center">
+          <!-- Injected via JS -->
         </div>
-
       </div>
+
     </div>
   </header>
 
-  <!-- Demo Quick Switcher Banner (Helpful for test & review) -->
-  <div class="bg-gradient-to-r from-slate-800 via-indigo-950 to-slate-900 text-slate-200 px-4 py-2 text-xs border-b border-indigo-900/50 shadow-inner">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-        </span>
-        <span class="font-medium text-slate-300">Быстрый тест ролей:</span>
-      </div>
-      <div class="flex flex-wrap items-center gap-1.5">
-        <button onclick="app.quickLogin('maxim', '314159')" class="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow-sm" title="Логин учителя: maxim / 314159">
-          👨‍🏫 Учитель: maxim
-        </button>
-        <button onclick="app.quickLogin('ivan_ivanov', 'pass101')" class="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-emerald-300 font-medium transition" title="10-А класс: урок проведен, можно оценить">
-          🟢 Иван (урок доступен)
-        </button>
-        <button onclick="app.quickLogin('dmitry_kuznetsov', 'pass103')" class="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-amber-300 font-medium transition" title="11-Б класс: урок вечером, нельзя до начала">
-          ⏳ Дмитрий (до урока)
-        </button>
-        <button onclick="app.quickLogin('alex_morozov', 'pass105')" class="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium transition" title="Python: сегодня нет урока, серый дизайн">
-          ⚪ Алексей (нет урока, серый дизайн)
-        </button>
-        <button onclick="app.quickLogin('anna_smirnova', 'pass102')" class="px-2.5 py-1 rounded bg-slate-700 hover:bg-slate-600 text-sky-300 font-medium transition" title="10-А класс: уже оценила урок">
-          🔒 Анна (уже оценила)
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Area -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300" id="mainContainer">
-    <!-- Dynamic views: Login View, Student View, Teacher View -->
+  <!-- Main Container -->
+  <main class="flex-grow max-w-xl sm:max-w-3xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-8" id="mainContainer">
     <div id="appRoot">
-      <!-- Injected by app.js -->
+      <!-- Injected via JS -->
     </div>
   </main>
 
   <!-- ================= MODALS ================= -->
 
-  <!-- 1. RATING MODAL (Окно оценки урока с 3 ползунками от 0 до 10) -->
-  <div id="ratingModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden transform transition-all scale-95 opacity-0 duration-200" id="ratingModalCard">
+  <!-- Rating Modal (Optimized for Mobile Thumb Use & Big Sliders) -->
+  <div id="ratingModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all duration-200 max-h-[92vh] flex flex-col" id="ratingModalCard">
       
+      <!-- Mobile drag indicator -->
+      <div class="sm:hidden w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-3 mb-1"></div>
+
       <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 text-white p-6 sm:p-8">
-        <div class="flex items-start justify-between">
-          <div>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-md mb-2">
-              <i data-lucide="star" class="w-3.5 h-3.5 text-amber-300 fill-amber-300"></i>
-              Оценивание занятия
-            </span>
-            <h3 class="text-xl sm:text-2xl font-bold tracking-tight" id="modalLessonTitle">Название урока</h3>
-            <p class="text-indigo-100 text-sm mt-1 flex items-center gap-2">
-              <i data-lucide="clock" class="w-4 h-4"></i>
-              <span id="modalLessonSchedule">Дата и время</span>
-              <span class="mx-1">•</span>
-              <span id="modalLessonTeacher">Учитель: Максим Сергеевич</span>
-            </p>
-          </div>
-          <button onclick="app.closeRatingModal()" class="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition">
-            <i data-lucide="x" class="w-6 h-6"></i>
-          </button>
+      <div class="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between">
+        <div>
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">Оценка занятия</span>
+          <h3 class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug" id="modalLessonTitle">Урок</h3>
+          <p class="text-sm text-slate-500 mt-1" id="modalLessonSchedule">Дата и время</p>
         </div>
-      </div>
-
-      <!-- Modal Body: 3 SLIDER BLOCKS (0 - 10 inclusive) -->
-      <div class="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
-        
-        <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-800 flex items-start gap-3">
-          <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
-          <div>
-            <strong class="font-semibold">Правило честной оценки:</strong>
-            Пожалуйста, выставьте объективную оценку по шкале от 0 до 10. После подтверждения оценку изменить нельзя.
-          </div>
-        </div>
-
-        <form id="ratingForm" onsubmit="app.handleRatingSubmit(event)" class="space-y-6">
-          <input type="hidden" id="modalLessonId" name="lesson_id">
-
-          <!-- BLOCK 1: Понятность материала -->
-          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 hover:border-indigo-300 transition-all shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center">1</span>
-                  <label for="sliderClarity" class="font-bold text-slate-900 text-base">Понятность материала</label>
-                </div>
-                <p class="text-xs text-slate-500 mt-0.5">Насколько доступно и понятно учитель объяснил новую тему?</p>
-              </div>
-              <div class="text-right">
-                <span id="badgeClarity" class="inline-flex items-center justify-center px-3 py-1 rounded-xl font-extrabold text-lg bg-indigo-600 text-white shadow-sm transition-all duration-150">
-                  8 / 10
-                </span>
-                <div id="labelClarityDesc" class="text-[11px] font-medium text-indigo-600 mt-1">Хорошо понятно</div>
-              </div>
-            </div>
-
-            <!-- Slider Range 0-10 -->
-            <div class="mt-4">
-              <input type="range" id="sliderClarity" name="score_clarity" min="0" max="10" step="1" value="8"
-                     oninput="app.updateSliderLive('Clarity', this.value)"
-                     class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <div class="flex justify-between text-[11px] font-semibold text-slate-400 px-1 mt-1.5">
-                <span>0 (Совсем непонятно)</span>
-                <span>5</span>
-                <span>10 (Идеально понятно)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- BLOCK 2: Интерес и вовлечённость -->
-          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 hover:border-emerald-300 transition-all shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center">2</span>
-                  <label for="sliderEngagement" class="font-bold text-slate-900 text-base">Интерес и вовлечённость</label>
-                </div>
-                <p class="text-xs text-slate-500 mt-0.5">Было ли занятие увлекательным, активным и практически полезным?</p>
-              </div>
-              <div class="text-right">
-                <span id="badgeEngagement" class="inline-flex items-center justify-center px-3 py-1 rounded-xl font-extrabold text-lg bg-emerald-600 text-white shadow-sm transition-all duration-150">
-                  8 / 10
-                </span>
-                <div id="labelEngagementDesc" class="text-[11px] font-medium text-emerald-600 mt-1">Очень интересно</div>
-              </div>
-            </div>
-
-            <!-- Slider Range 0-10 -->
-            <div class="mt-4">
-              <input type="range" id="sliderEngagement" name="score_engagement" min="0" max="10" step="1" value="8"
-                     oninput="app.updateSliderLive('Engagement', this.value)"
-                     class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <div class="flex justify-between text-[11px] font-semibold text-slate-400 px-1 mt-1.5">
-                <span>0 (Было скучно)</span>
-                <span>5</span>
-                <span>10 (Захватывающе)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- BLOCK 3: Атмосфера и подача -->
-          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 hover:border-violet-300 transition-all shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-lg bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center">3</span>
-                  <label for="sliderAtmosphere" class="font-bold text-slate-900 text-base">Атмосфера и подача</label>
-                </div>
-                <p class="text-xs text-slate-500 mt-0.5">Доброжелательность учителя, поддержка, комфорт общения</p>
-              </div>
-              <div class="text-right">
-                <span id="badgeAtmosphere" class="inline-flex items-center justify-center px-3 py-1 rounded-xl font-extrabold text-lg bg-violet-600 text-white shadow-sm transition-all duration-150">
-                  9 / 10
-                </span>
-                <div id="labelAtmosphereDesc" class="text-[11px] font-medium text-violet-600 mt-1">Отличная атмосфера</div>
-              </div>
-            </div>
-
-            <!-- Slider Range 0-10 -->
-            <div class="mt-4">
-              <input type="range" id="sliderAtmosphere" name="score_atmosphere" min="0" max="10" step="1" value="9"
-                     oninput="app.updateSliderLive('Atmosphere', this.value)"
-                     class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-500">
-              <div class="flex justify-between text-[11px] font-semibold text-slate-400 px-1 mt-1.5">
-                <span>0 (Напряженно)</span>
-                <span>5</span>
-                <span>10 (Супер комфортно)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Optional comment -->
-          <div>
-            <label for="ratingComment" class="block text-xs font-semibold text-slate-700 mb-1.5">
-              Комментарий учителю (необязательно):
-            </label>
-            <textarea id="ratingComment" name="comment" rows="2" placeholder="Напишите, что особенно понравилось или что стоит улучшить..."
-                      class="w-full rounded-xl border border-slate-300 p-3 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"></textarea>
-          </div>
-
-          <!-- Live Average Summary -->
-          <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-4 rounded-2xl flex items-center justify-between shadow-md">
-            <div>
-              <span class="text-xs uppercase tracking-wider text-slate-300 font-semibold">Итоговый балл урока</span>
-              <p class="text-xs text-slate-400">Среднее арифметическое трёх параметров</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <span id="modalLiveAverage" class="text-3xl font-black text-amber-400">8.3</span>
-              <span class="text-sm font-semibold text-slate-400">/ 10</span>
-            </div>
-          </div>
-
-          <!-- Modal Action Buttons (Кнопка Оценить) -->
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button type="button" onclick="app.closeRatingModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition text-sm">
-              Отмена
-            </button>
-            <button type="submit" id="btnSubmitRating" class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-sm shadow-lg shadow-indigo-300 hover:shadow-indigo-400 transition transform active:scale-95 flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4"></i>
-              <span>Оценить</span>
-            </button>
-          </div>
-
-        </form>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. CALENDAR & RATINGS TABLE MODAL (Иконка календаря на главной странице) -->
-  <div id="calendarModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-    <div class="relative bg-white rounded-3xl max-w-5xl w-full shadow-2xl border border-slate-100 overflow-hidden transform transition-all scale-95 opacity-0 duration-200 max-h-[90vh] flex flex-col" id="calendarModalCard">
-      
-      <!-- Header -->
-      <div class="bg-slate-900 text-white p-6 flex items-center justify-between border-b border-slate-800 shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
-            <i data-lucide="calendar-range" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold tracking-tight">Журнал и Календарь оценок</h3>
-            <p class="text-xs text-slate-400">Оценки всех учеников по разным дням и занятиям</p>
-          </div>
-        </div>
-        <button onclick="app.closeCalendarModal()" class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition">
-          <i data-lucide="x" class="w-6 h-6"></i>
+        <button onclick="app.closeRatingModal()" class="w-10 h-10 rounded-full bg-slate-100 active:bg-slate-200 text-slate-500 flex items-center justify-center -mr-2 -mt-2">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- Filters & Date Navigation -->
-      <div class="p-4 sm:p-6 bg-slate-50 border-b border-slate-200 shrink-0 space-y-4">
-        
-        <!-- Summary Cards Bar -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase">Всего оценок</span>
-            <div id="calTotalRatings" class="text-xl font-bold text-slate-900 mt-0.5">0</div>
+      <!-- Sliders 0-10 (Thick tracks, big knobs, easy for touch) -->
+      <form id="ratingForm" onsubmit="app.handleRatingSubmit(event)" class="p-5 sm:p-6 space-y-6 overflow-y-auto">
+        <input type="hidden" id="modalLessonId" name="lesson_id">
+
+        <!-- Block 1 -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2.5">
+          <div class="flex justify-between items-center">
+            <label class="font-bold text-slate-800 text-sm sm:text-base">1. Понятность темы</label>
+            <span id="badgeClarity" class="font-extrabold text-base sm:text-lg text-indigo-600 bg-white shadow-xs px-3 py-1 rounded-xl border border-indigo-100">8 / 10</span>
           </div>
-          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase">Средний балл</span>
-            <div id="calAvgScore" class="text-xl font-bold text-indigo-600 mt-0.5">0.0 / 10</div>
-          </div>
-          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase">Понятность</span>
-            <div id="calAvgClarity" class="text-xl font-bold text-slate-800 mt-0.5">0.0</div>
-          </div>
-          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase">Вовлечённость</span>
-            <div id="calAvgEngagement" class="text-xl font-bold text-slate-800 mt-0.5">0.0</div>
+          <p class="text-xs text-slate-500">Насколько доступно и ясно учитель всё объяснил</p>
+          <div class="pt-2">
+            <input type="range" id="sliderClarity" min="0" max="10" step="1" value="8"
+                   oninput="app.updateSliderLive('Clarity', this.value)"
+                   class="mobile-range-slider w-full cursor-pointer">
+            <div class="flex justify-between text-xs font-semibold text-slate-400 pt-1.5 px-0.5">
+              <span>0 (сложно)</span>
+              <span>5</span>
+              <span>10 (очень понятно)</span>
+            </div>
           </div>
         </div>
 
-        <!-- Filter Controls -->
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <!-- Date Filter Buttons & Picker -->
-          <div class="flex flex-wrap items-center gap-1.5" id="calendarDateButtons">
-            <!-- Injected by JS: "Все дни", "Сегодня", etc. -->
+        <!-- Block 2 -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2.5">
+          <div class="flex justify-between items-center">
+            <label class="font-bold text-slate-800 text-sm sm:text-base">2. Интерес и вовлечённость</label>
+            <span id="badgeEngagement" class="font-extrabold text-base sm:text-lg text-indigo-600 bg-white shadow-xs px-3 py-1 rounded-xl border border-indigo-100">8 / 10</span>
           </div>
+          <p class="text-xs text-slate-500">Было ли интересно слушать и участвовать в уроке</p>
+          <div class="pt-2">
+            <input type="range" id="sliderEngagement" min="0" max="10" step="1" value="8"
+                   oninput="app.updateSliderLive('Engagement', this.value)"
+                   class="mobile-range-slider w-full cursor-pointer">
+            <div class="flex justify-between text-xs font-semibold text-slate-400 pt-1.5 px-0.5">
+              <span>0 (скучно)</span>
+              <span>5</span>
+              <span>10 (захватывающе)</span>
+            </div>
+          </div>
+        </div>
 
-          <!-- Class selector & search input -->
-          <div class="flex items-center gap-2">
-            <select id="calendarClassSelect" onchange="app.filterCalendar()" class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
-              <option value="">Все классы</option>
-            </select>
-            <input type="text" id="calendarSearchInput" onkeyup="app.filterCalendar()" placeholder="Поиск по ученику или теме..."
-                   class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-44">
+        <!-- Block 3 -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2.5">
+          <div class="flex justify-between items-center">
+            <label class="font-bold text-slate-800 text-sm sm:text-base">3. Атмосфера и подача</label>
+            <span id="badgeAtmosphere" class="font-extrabold text-base sm:text-lg text-indigo-600 bg-white shadow-xs px-3 py-1 rounded-xl border border-indigo-100">9 / 10</span>
           </div>
+          <p class="text-xs text-slate-500">Комфорт, доброжелательность, готовность ответить на вопросы</p>
+          <div class="pt-2">
+            <input type="range" id="sliderAtmosphere" min="0" max="10" step="1" value="9"
+                   oninput="app.updateSliderLive('Atmosphere', this.value)"
+                   class="mobile-range-slider w-full cursor-pointer">
+            <div class="flex justify-between text-xs font-semibold text-slate-400 pt-1.5 px-0.5">
+              <span>0 (напряжённо)</span>
+              <span>5</span>
+              <span>10 (отлично)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Average preview -->
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-4 flex justify-between items-center">
+          <div>
+            <span class="text-slate-700 font-bold text-sm block">Итоговый балл:</span>
+            <span class="text-xs text-slate-500">Среднее значение трёх критериев</span>
+          </div>
+          <span id="modalLiveAverage" class="font-black text-indigo-700 text-xl sm:text-2xl">8.3 / 10</span>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2 pb-1 space-y-2">
+          <button type="submit" id="btnSubmitRating"
+                  class="w-full py-4 px-6 rounded-2xl bg-indigo-600 active:bg-indigo-700 hover:bg-indigo-700 text-white font-extrabold text-base shadow-lg shadow-indigo-600/25 transition active:scale-[0.99] flex items-center justify-center gap-2">
+            <i data-lucide="check" class="w-5 h-5"></i>
+            <span>Отправить оценку</span>
+          </button>
+          <button type="button" onclick="app.closeRatingModal()"
+                  class="w-full py-3 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-100 transition">
+            Отмена
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Calendar Modal (Mobile-Optimized Table & Cards) -->
+  <div id="calendarModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col" id="calendarModalCard">
+      
+      <!-- Mobile indicator -->
+      <div class="sm:hidden w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-3 mb-1"></div>
+
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-slate-900 leading-tight">Журнал оценок</h3>
+            <p class="text-xs text-slate-500">Оценки учеников по дням</p>
+          </div>
+        </div>
+        <button onclick="app.closeCalendarModal()" class="w-9 h-9 rounded-full bg-slate-100 active:bg-slate-200 text-slate-500 flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Filter Controls (Horizontally scrollable on mobile) -->
+      <div class="p-3.5 bg-slate-50 border-b border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none" id="calendarDateButtons">
+          <!-- Injected via JS -->
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="calendarClassSelect" onchange="app.filterCalendar()"
+                  class="w-full sm:w-auto text-sm font-medium bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-indigo-500">
+            <option value="">Все классы</option>
+          </select>
         </div>
       </div>
 
-      <!-- Table Content (Scrollable) -->
-      <div class="overflow-y-auto flex-grow p-4 sm:p-6">
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
-          <table class="w-full text-left border-collapse text-xs">
+      <!-- Ratings List (Cards on Mobile, Clean Table on Desktop) -->
+      <div class="overflow-y-auto flex-grow p-4 sm:p-5">
+        <!-- Desktop Table -->
+        <div class="hidden sm:block overflow-x-auto">
+          <table class="w-full text-left text-sm">
             <thead>
-              <tr class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
-                <th class="p-3">Дата урока</th>
-                <th class="p-3">Ученик</th>
-                <th class="p-3">Класс</th>
-                <th class="p-3">Тема урока</th>
-                <th class="p-3 text-center">Понятность</th>
-                <th class="p-3 text-center">Интерес</th>
-                <th class="p-3 text-center">Атмосфера</th>
-                <th class="p-3 text-center font-bold">Итог</th>
-                <th class="p-3">Отзыв / Комментарий</th>
+              <tr class="text-slate-400 font-semibold border-b border-slate-100 pb-2">
+                <th class="pb-2.5">Дата</th>
+                <th class="pb-2.5">Ученик</th>
+                <th class="pb-2.5">Класс</th>
+                <th class="pb-2.5">Урок</th>
+                <th class="pb-2.5 text-center">Понятность</th>
+                <th class="pb-2.5 text-center">Интерес</th>
+                <th class="pb-2.5 text-center">Атмосфера</th>
+                <th class="pb-2.5 text-center font-bold">Итог</th>
               </tr>
             </thead>
-            <tbody id="calendarTableBody" class="divide-y divide-slate-100 text-slate-700 bg-white">
-              <!-- Injected by JS -->
+            <tbody id="calendarTableBody" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Injected via JS -->
             </tbody>
           </table>
         </div>
-        <div id="calendarEmptyState" class="hidden text-center py-12 text-slate-400">
-          <i data-lucide="inbox" class="w-12 h-12 mx-auto stroke-1 mb-2"></i>
-          <p class="text-sm font-medium">Нет оценок за выбранную дату или класс</p>
-        </div>
-      </div>
 
-      <!-- Footer -->
-      <div class="bg-slate-50 border-t border-slate-200 p-4 flex justify-between items-center text-xs text-slate-500">
-        <span>Данные синхронизированы в реальном времени</span>
-        <button onclick="app.closeCalendarModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-semibold text-slate-800 rounded-lg transition">
-          Закрыть
-        </button>
+        <!-- Mobile Cards List -->
+        <div id="calendarMobileList" class="sm:hidden space-y-3">
+          <!-- Injected via JS -->
+        </div>
+
+        <div id="calendarEmptyState" class="hidden text-center py-12 text-slate-400 text-sm">
+          <i data-lucide="inbox" class="w-10 h-10 mx-auto text-slate-300 mb-2"></i>
+          Оценок пока нет
+        </div>
       </div>
 
     </div>
   </div>
 
-  <!-- 3. TEACHER MODAL: CREATE CLASS -->
-  <div id="createClassModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h4 class="text-lg font-bold text-slate-900">Создать новый класс</h4>
-        <button onclick="app.closeModal('createClassModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+  <!-- Teacher Modal: Create Class -->
+  <div id="createClassModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h4 class="font-bold text-lg text-slate-900">Создать класс</h4>
+        <button onclick="app.closeModal('createClassModal')" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="app.handleCreateClass(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Название класса / группы *</label>
-          <input type="text" id="newClassName" required placeholder="Например: 10-А класс (Физмат)" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Название класса *</label>
+          <input type="text" id="newClassName" required placeholder="Например: 10-А" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none focus:border-indigo-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Описание / профиль</label>
-          <input type="text" id="newClassDesc" placeholder="Например: Углубленный курс физики" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Описание (необязательно)</label>
+          <input type="text" id="newClassDesc" placeholder="Профиль, предмет..." class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none focus:border-indigo-500">
         </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="app.closeModal('createClassModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Отмена</button>
-          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md">Создать класс</button>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="app.closeModal('createClassModal')" class="w-1/2 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Отмена</button>
+          <button type="submit" class="w-1/2 py-3 text-sm font-bold text-white bg-indigo-600 active:bg-indigo-700 rounded-xl shadow-sm">Создать</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 4. TEACHER MODAL: CREATE STUDENT -->
-  <div id="createStudentModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h4 class="text-lg font-bold text-slate-900">Добавить ученика</h4>
-        <button onclick="app.closeModal('createStudentModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+  <!-- Teacher Modal: Create Student -->
+  <div id="createStudentModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h4 class="font-bold text-lg text-slate-900">Создать ученика</h4>
+        <button onclick="app.closeModal('createStudentModal')" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="app.handleCreateStudent(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Класс *</label>
-          <select id="newStudentClassId" required class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-            <!-- Injected by JS -->
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Класс *</label>
+          <select id="newStudentClassId" required class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none bg-white">
+            <!-- Injected via JS -->
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">ФИО Ученика *</label>
-          <input type="text" id="newStudentName" required placeholder="Например: Михаил Семенов" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">ФИО Ученика *</label>
+          <input type="text" id="newStudentName" required placeholder="Имя и Фамилия" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none focus:border-indigo-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Логин для входа *</label>
-          <input type="text" id="newStudentUsername" required placeholder="Например: mikhail_s" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Логин *</label>
+          <input type="text" id="newStudentUsername" required placeholder="Логин для входа" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none focus:border-indigo-500 font-mono">
         </div>
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-semibold text-slate-700">Пароль *</label>
-            <button type="button" onclick="app.generateRandomPassword()" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium">Сгенерировать</button>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-sm font-semibold text-slate-700">Пароль *</label>
+            <button type="button" onclick="app.generateRandomPassword()" class="text-xs font-semibold text-indigo-600 hover:underline">Сгенерировать</button>
           </div>
-          <input type="text" id="newStudentPassword" required placeholder="Пароль" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none font-mono">
+          <input type="text" id="newStudentPassword" required placeholder="Пароль" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none font-mono">
         </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="app.closeModal('createStudentModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Отмена</button>
-          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md">Добавить ученика</button>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="app.closeModal('createStudentModal')" class="w-1/2 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Отмена</button>
+          <button type="submit" class="w-1/2 py-3 text-sm font-bold text-white bg-indigo-600 active:bg-indigo-700 rounded-xl shadow-sm">Создать</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 5. TEACHER MODAL: CREATE LESSON -->
-  <div id="createLessonModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h4 class="text-lg font-bold text-slate-900">Запланировать занятие для класса</h4>
-        <button onclick="app.closeModal('createLessonModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+  <!-- Teacher Modal: Create Lesson -->
+  <div id="createLessonModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h4 class="font-bold text-lg text-slate-900">Создать занятие</h4>
+        <button onclick="app.closeModal('createLessonModal')" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="app.handleCreateLesson(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Класс / Группа *</label>
-          <select id="newLessonClassId" required class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-            <!-- Injected by JS -->
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Класс *</label>
+          <select id="newLessonClassId" required class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none bg-white">
+            <!-- Injected via JS -->
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Тема занятия *</label>
-          <input type="text" id="newLessonTitle" required placeholder="Например: Закон сохранения импульса" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Тема занятия *</label>
+          <input type="text" id="newLessonTitle" required placeholder="Тема урока" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none focus:border-indigo-500">
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="space-y-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Дата занятия *</label>
-            <input type="date" id="newLessonDate" required class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Дата *</label>
+            <input type="date" id="newLessonDate" required class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none bg-white">
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Время начала *</label>
-            <input type="time" id="newLessonStartTime" required value="10:00" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Время конца *</label>
-            <input type="time" id="newLessonEndTime" required value="11:30" class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1.5">Начало *</label>
+              <input type="time" id="newLessonStartTime" required value="10:00" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none bg-white">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1.5">Конец *</label>
+              <input type="time" id="newLessonEndTime" required value="11:30" class="w-full text-base border border-slate-300 rounded-xl p-3 outline-none bg-white">
+            </div>
           </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Краткое описание / план</label>
-          <textarea id="newLessonDesc" rows="2" placeholder="Основные тезисы урока..." class="w-full text-sm border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
-        </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="app.closeModal('createLessonModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Отмена</button>
-          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md">Создать урок</button>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="app.closeModal('createLessonModal')" class="w-1/2 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Отмена</button>
+          <button type="submit" class="w-1/2 py-3 text-sm font-bold text-white bg-indigo-600 active:bg-indigo-700 rounded-xl shadow-sm">Создать</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 mt-auto py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <div>
-        <p class="font-medium text-slate-700">Персональная платформа учителя: Максим Сергеевич (maxim / 314159)</p>
-        <p class="mt-0.5">Разработано с заботой о качестве учебного процесса</p>
-      </div>
-      <div class="flex items-center gap-4">
-        <button onclick="app.openCalendarModal()" class="hover:text-indigo-600 flex items-center gap-1 font-medium transition">
-          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-          Журнал оценок
-        </button>
-        <span>•</span>
-        <span id="backendStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Сервер онлайн
-        </span>
-      </div>
-    </div>
-  </footer>
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-4 sm:top-auto sm:bottom-6 inset-x-4 sm:inset-x-auto sm:right-6 z-50 flex flex-col gap-2 pointer-events-none items-center sm:items-end"></div>
 
   <script src="app.js"></script>
 </body>
